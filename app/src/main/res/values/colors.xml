@@ -6,5 +6,6 @@
     <color name="primary">#D71920</color>
     <color name="white">#FFFFFF</color>
     <color name="hint">#AAAAAA</color>
+    <color name="black">#111111</color>
 
 </resources>

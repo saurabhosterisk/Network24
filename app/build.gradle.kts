@@ -42,14 +42,14 @@ android {
 
 
 dependencies {
+
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
-    implementation(libs.material)
     implementation(libs.androidx.activity)
     implementation(libs.androidx.constraintlayout)
-    testImplementation(libs.junit)
-    androidTestImplementation(libs.androidx.junit)
-    androidTestImplementation(libs.androidx.espresso.core)
+    implementation(libs.material)
+    implementation(libs.androidx.recyclerview)
+
     implementation(libs.retrofit)
     implementation(libs.retrofit.gson)
 
@@ -57,13 +57,16 @@ dependencies {
     implementation(libs.okhttp.logging)
 
     implementation(libs.gson)
+    implementation(libs.kotlinx.coroutines.android)
 
     implementation(libs.media3.exoplayer)
     implementation(libs.media3.ui)
+    implementation(libs.media3.common)
 
-    implementation(libs.androidx.recyclerview)
-
+    implementation(libs.coil)
     implementation(libs.glide)
 
-    implementation(libs.kotlinx.coroutines.android)
+    testImplementation(libs.junit)
+    androidTestImplementation(libs.androidx.junit)
+    androidTestImplementation(libs.androidx.espresso.core)
 }
