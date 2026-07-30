@@ -13,10 +13,12 @@
         android:theme="@style/Theme.Network24">
         <activity
             android:name=".activities.LoginActivity"
+            android:screenOrientation="landscape"
             android:exported="false" />
 
         <activity
             android:name=".activities.SplashActivity"
+            android:screenOrientation="landscape"
             android:exported="true">
 
             <intent-filter>
