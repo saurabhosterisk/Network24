@@ -29,19 +29,19 @@
 19-->D:\Android Development\Network24\app\src\main\AndroidManifest.xml:13:9-33
 20
 21    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-21-->[androidx.media3:media3-exoplayer:1.8.0] C:\Users\saura\.gradle\caches\9.2.1\transforms\9b6b12e021f23356c0fc857431afe6b8\workspace\transformed\media3-exoplayer-1.8.0\AndroidManifest.xml:22:5-79
-21-->[androidx.media3:media3-exoplayer:1.8.0] C:\Users\saura\.gradle\caches\9.2.1\transforms\9b6b12e021f23356c0fc857431afe6b8\workspace\transformed\media3-exoplayer-1.8.0\AndroidManifest.xml:22:22-76
+21-->[androidx.media3:media3-exoplayer:1.8.0] C:\Users\saura\.gradle\caches\9.2.1\transforms\d7d2279811c7e752f1e0742d37c3cc35\workspace\transformed\media3-exoplayer-1.8.0\AndroidManifest.xml:22:5-79
+21-->[androidx.media3:media3-exoplayer:1.8.0] C:\Users\saura\.gradle\caches\9.2.1\transforms\d7d2279811c7e752f1e0742d37c3cc35\workspace\transformed\media3-exoplayer-1.8.0\AndroidManifest.xml:22:22-76
 22
 23    <permission
-23-->[androidx.core:core:1.17.0] C:\Users\saura\.gradle\caches\9.2.1\transforms\5c59791b20febd62407c8b94a26b5c7f\workspace\transformed\core-1.17.0\AndroidManifest.xml:22:5-24:47
+23-->[androidx.core:core:1.16.0] C:\Users\saura\.gradle\caches\9.2.1\transforms\ec94f97064463f672ca2be3011980286\workspace\transformed\core-1.16.0\AndroidManifest.xml:22:5-24:47
 24        android:name="com.network24.player.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
-24-->[androidx.core:core:1.17.0] C:\Users\saura\.gradle\caches\9.2.1\transforms\5c59791b20febd62407c8b94a26b5c7f\workspace\transformed\core-1.17.0\AndroidManifest.xml:23:9-81
+24-->[androidx.core:core:1.16.0] C:\Users\saura\.gradle\caches\9.2.1\transforms\ec94f97064463f672ca2be3011980286\workspace\transformed\core-1.16.0\AndroidManifest.xml:23:9-81
 25        android:protectionLevel="signature" />
-25-->[androidx.core:core:1.17.0] C:\Users\saura\.gradle\caches\9.2.1\transforms\5c59791b20febd62407c8b94a26b5c7f\workspace\transformed\core-1.17.0\AndroidManifest.xml:24:9-44
+25-->[androidx.core:core:1.16.0] C:\Users\saura\.gradle\caches\9.2.1\transforms\ec94f97064463f672ca2be3011980286\workspace\transformed\core-1.16.0\AndroidManifest.xml:24:9-44
 26
 27    <uses-permission android:name="com.network24.player.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION" />
-27-->[androidx.core:core:1.17.0] C:\Users\saura\.gradle\caches\9.2.1\transforms\5c59791b20febd62407c8b94a26b5c7f\workspace\transformed\core-1.17.0\AndroidManifest.xml:26:5-97
-27-->[androidx.core:core:1.17.0] C:\Users\saura\.gradle\caches\9.2.1\transforms\5c59791b20febd62407c8b94a26b5c7f\workspace\transformed\core-1.17.0\AndroidManifest.xml:26:22-94
+27-->[androidx.core:core:1.16.0] C:\Users\saura\.gradle\caches\9.2.1\transforms\ec94f97064463f672ca2be3011980286\workspace\transformed\core-1.16.0\AndroidManifest.xml:26:5-97
+27-->[androidx.core:core:1.16.0] C:\Users\saura\.gradle\caches\9.2.1\transforms\ec94f97064463f672ca2be3011980286\workspace\transformed\core-1.16.0\AndroidManifest.xml:26:22-94
 28
 29    <application
 29-->D:\Android Development\Network24\app\src\main\AndroidManifest.xml:15:5-89:19
@@ -50,7 +50,7 @@
 31        android:allowBackup="true"
 31-->D:\Android Development\Network24\app\src\main\AndroidManifest.xml:16:9-35
 32        android:appComponentFactory="androidx.core.app.CoreComponentFactory"
-32-->[androidx.core:core:1.17.0] C:\Users\saura\.gradle\caches\9.2.1\transforms\5c59791b20febd62407c8b94a26b5c7f\workspace\transformed\core-1.17.0\AndroidManifest.xml:28:18-86
+32-->[androidx.core:core:1.16.0] C:\Users\saura\.gradle\caches\9.2.1\transforms\ec94f97064463f672ca2be3011980286\workspace\transformed\core-1.16.0\AndroidManifest.xml:28:18-86
 33        android:banner="@drawable/tv_banner"
 33-->D:\Android Development\Network24\app\src\main\AndroidManifest.xml:21:9-45
 34        android:dataExtractionRules="@xml/data_extraction_rules"
@@ -171,146 +171,146 @@
 94        </activity>
 95
 96        <service
-96-->[com.google.firebase:firebase-firestore-ktx:25.0.0] C:\Users\saura\.gradle\caches\9.2.1\transforms\050abf397781389bf8ec53b0106d037e\workspace\transformed\firebase-firestore-ktx-25.0.0\AndroidManifest.xml:9:9-15:19
+96-->[com.google.firebase:firebase-firestore-ktx:25.0.0] C:\Users\saura\.gradle\caches\9.2.1\transforms\6c647f6e31aeb5de07254c94800953f9\workspace\transformed\firebase-firestore-ktx-25.0.0\AndroidManifest.xml:9:9-15:19
 97            android:name="com.google.firebase.components.ComponentDiscoveryService"
-97-->[com.google.firebase:firebase-firestore-ktx:25.0.0] C:\Users\saura\.gradle\caches\9.2.1\transforms\050abf397781389bf8ec53b0106d037e\workspace\transformed\firebase-firestore-ktx-25.0.0\AndroidManifest.xml:10:13-84
+97-->[com.google.firebase:firebase-firestore-ktx:25.0.0] C:\Users\saura\.gradle\caches\9.2.1\transforms\6c647f6e31aeb5de07254c94800953f9\workspace\transformed\firebase-firestore-ktx-25.0.0\AndroidManifest.xml:10:13-84
 98            android:directBootAware="true"
-98-->[com.google.firebase:firebase-common:21.0.0] C:\Users\saura\.gradle\caches\9.2.1\transforms\11c467d122f6fa01baed56e5ede7e8fd\workspace\transformed\firebase-common-21.0.0\AndroidManifest.xml:32:13-43
+98-->[com.google.firebase:firebase-common:21.0.0] C:\Users\saura\.gradle\caches\9.2.1\transforms\c8a1958910a4edb2b42d1b63014ca0e7\workspace\transformed\firebase-common-21.0.0\AndroidManifest.xml:32:13-43
 99            android:exported="false" >
-99-->[com.google.firebase:firebase-firestore-ktx:25.0.0] C:\Users\saura\.gradle\caches\9.2.1\transforms\050abf397781389bf8ec53b0106d037e\workspace\transformed\firebase-firestore-ktx-25.0.0\AndroidManifest.xml:11:13-37
+99-->[com.google.firebase:firebase-firestore-ktx:25.0.0] C:\Users\saura\.gradle\caches\9.2.1\transforms\6c647f6e31aeb5de07254c94800953f9\workspace\transformed\firebase-firestore-ktx-25.0.0\AndroidManifest.xml:11:13-37
 100            <meta-data
-100-->[com.google.firebase:firebase-firestore-ktx:25.0.0] C:\Users\saura\.gradle\caches\9.2.1\transforms\050abf397781389bf8ec53b0106d037e\workspace\transformed\firebase-firestore-ktx-25.0.0\AndroidManifest.xml:12:13-14:85
+100-->[com.google.firebase:firebase-firestore-ktx:25.0.0] C:\Users\saura\.gradle\caches\9.2.1\transforms\6c647f6e31aeb5de07254c94800953f9\workspace\transformed\firebase-firestore-ktx-25.0.0\AndroidManifest.xml:12:13-14:85
 101                android:name="com.google.firebase.components:com.google.firebase.firestore.ktx.FirebaseFirestoreLegacyRegistrar"
-101-->[com.google.firebase:firebase-firestore-ktx:25.0.0] C:\Users\saura\.gradle\caches\9.2.1\transforms\050abf397781389bf8ec53b0106d037e\workspace\transformed\firebase-firestore-ktx-25.0.0\AndroidManifest.xml:13:17-129
+101-->[com.google.firebase:firebase-firestore-ktx:25.0.0] C:\Users\saura\.gradle\caches\9.2.1\transforms\6c647f6e31aeb5de07254c94800953f9\workspace\transformed\firebase-firestore-ktx-25.0.0\AndroidManifest.xml:13:17-129
 102                android:value="com.google.firebase.components.ComponentRegistrar" />
-102-->[com.google.firebase:firebase-firestore-ktx:25.0.0] C:\Users\saura\.gradle\caches\9.2.1\transforms\050abf397781389bf8ec53b0106d037e\workspace\transformed\firebase-firestore-ktx-25.0.0\AndroidManifest.xml:14:17-82
+102-->[com.google.firebase:firebase-firestore-ktx:25.0.0] C:\Users\saura\.gradle\caches\9.2.1\transforms\6c647f6e31aeb5de07254c94800953f9\workspace\transformed\firebase-firestore-ktx-25.0.0\AndroidManifest.xml:14:17-82
 103            <meta-data
-103-->[com.google.firebase:firebase-firestore:25.0.0] C:\Users\saura\.gradle\caches\9.2.1\transforms\bf4de5b33139b85333d470e607e5ba93\workspace\transformed\firebase-firestore-25.0.0\AndroidManifest.xml:17:13-19:85
+103-->[com.google.firebase:firebase-firestore:25.0.0] C:\Users\saura\.gradle\caches\9.2.1\transforms\5e90c74c5c7e8e4803208d6cc5d014d4\workspace\transformed\firebase-firestore-25.0.0\AndroidManifest.xml:17:13-19:85
 104                android:name="com.google.firebase.components:com.google.firebase.firestore.FirebaseFirestoreKtxRegistrar"
-104-->[com.google.firebase:firebase-firestore:25.0.0] C:\Users\saura\.gradle\caches\9.2.1\transforms\bf4de5b33139b85333d470e607e5ba93\workspace\transformed\firebase-firestore-25.0.0\AndroidManifest.xml:18:17-122
+104-->[com.google.firebase:firebase-firestore:25.0.0] C:\Users\saura\.gradle\caches\9.2.1\transforms\5e90c74c5c7e8e4803208d6cc5d014d4\workspace\transformed\firebase-firestore-25.0.0\AndroidManifest.xml:18:17-122
 105                android:value="com.google.firebase.components.ComponentRegistrar" />
-105-->[com.google.firebase:firebase-firestore:25.0.0] C:\Users\saura\.gradle\caches\9.2.1\transforms\bf4de5b33139b85333d470e607e5ba93\workspace\transformed\firebase-firestore-25.0.0\AndroidManifest.xml:19:17-82
+105-->[com.google.firebase:firebase-firestore:25.0.0] C:\Users\saura\.gradle\caches\9.2.1\transforms\5e90c74c5c7e8e4803208d6cc5d014d4\workspace\transformed\firebase-firestore-25.0.0\AndroidManifest.xml:19:17-82
 106            <meta-data
-106-->[com.google.firebase:firebase-firestore:25.0.0] C:\Users\saura\.gradle\caches\9.2.1\transforms\bf4de5b33139b85333d470e607e5ba93\workspace\transformed\firebase-firestore-25.0.0\AndroidManifest.xml:20:13-22:85
+106-->[com.google.firebase:firebase-firestore:25.0.0] C:\Users\saura\.gradle\caches\9.2.1\transforms\5e90c74c5c7e8e4803208d6cc5d014d4\workspace\transformed\firebase-firestore-25.0.0\AndroidManifest.xml:20:13-22:85
 107                android:name="com.google.firebase.components:com.google.firebase.firestore.FirestoreRegistrar"
-107-->[com.google.firebase:firebase-firestore:25.0.0] C:\Users\saura\.gradle\caches\9.2.1\transforms\bf4de5b33139b85333d470e607e5ba93\workspace\transformed\firebase-firestore-25.0.0\AndroidManifest.xml:21:17-111
+107-->[com.google.firebase:firebase-firestore:25.0.0] C:\Users\saura\.gradle\caches\9.2.1\transforms\5e90c74c5c7e8e4803208d6cc5d014d4\workspace\transformed\firebase-firestore-25.0.0\AndroidManifest.xml:21:17-111
 108                android:value="com.google.firebase.components.ComponentRegistrar" />
-108-->[com.google.firebase:firebase-firestore:25.0.0] C:\Users\saura\.gradle\caches\9.2.1\transforms\bf4de5b33139b85333d470e607e5ba93\workspace\transformed\firebase-firestore-25.0.0\AndroidManifest.xml:22:17-82
+108-->[com.google.firebase:firebase-firestore:25.0.0] C:\Users\saura\.gradle\caches\9.2.1\transforms\5e90c74c5c7e8e4803208d6cc5d014d4\workspace\transformed\firebase-firestore-25.0.0\AndroidManifest.xml:22:17-82
 109            <meta-data
-109-->[com.google.firebase:firebase-common-ktx:21.0.0] C:\Users\saura\.gradle\caches\9.2.1\transforms\3c9a254e72eec6701eb438a89c42cb7b\workspace\transformed\firebase-common-ktx-21.0.0\AndroidManifest.xml:12:13-14:85
+109-->[com.google.firebase:firebase-common-ktx:21.0.0] C:\Users\saura\.gradle\caches\9.2.1\transforms\c0d851cb0514b7769cf87ad007dd5fbf\workspace\transformed\firebase-common-ktx-21.0.0\AndroidManifest.xml:12:13-14:85
 110                android:name="com.google.firebase.components:com.google.firebase.ktx.FirebaseCommonLegacyRegistrar"
-110-->[com.google.firebase:firebase-common-ktx:21.0.0] C:\Users\saura\.gradle\caches\9.2.1\transforms\3c9a254e72eec6701eb438a89c42cb7b\workspace\transformed\firebase-common-ktx-21.0.0\AndroidManifest.xml:13:17-116
+110-->[com.google.firebase:firebase-common-ktx:21.0.0] C:\Users\saura\.gradle\caches\9.2.1\transforms\c0d851cb0514b7769cf87ad007dd5fbf\workspace\transformed\firebase-common-ktx-21.0.0\AndroidManifest.xml:13:17-116
 111                android:value="com.google.firebase.components.ComponentRegistrar" />
-111-->[com.google.firebase:firebase-common-ktx:21.0.0] C:\Users\saura\.gradle\caches\9.2.1\transforms\3c9a254e72eec6701eb438a89c42cb7b\workspace\transformed\firebase-common-ktx-21.0.0\AndroidManifest.xml:14:17-82
+111-->[com.google.firebase:firebase-common-ktx:21.0.0] C:\Users\saura\.gradle\caches\9.2.1\transforms\c0d851cb0514b7769cf87ad007dd5fbf\workspace\transformed\firebase-common-ktx-21.0.0\AndroidManifest.xml:14:17-82
 112            <meta-data
-112-->[com.google.firebase:firebase-common:21.0.0] C:\Users\saura\.gradle\caches\9.2.1\transforms\11c467d122f6fa01baed56e5ede7e8fd\workspace\transformed\firebase-common-21.0.0\AndroidManifest.xml:35:13-37:85
+112-->[com.google.firebase:firebase-common:21.0.0] C:\Users\saura\.gradle\caches\9.2.1\transforms\c8a1958910a4edb2b42d1b63014ca0e7\workspace\transformed\firebase-common-21.0.0\AndroidManifest.xml:35:13-37:85
 113                android:name="com.google.firebase.components:com.google.firebase.FirebaseCommonKtxRegistrar"
-113-->[com.google.firebase:firebase-common:21.0.0] C:\Users\saura\.gradle\caches\9.2.1\transforms\11c467d122f6fa01baed56e5ede7e8fd\workspace\transformed\firebase-common-21.0.0\AndroidManifest.xml:36:17-109
+113-->[com.google.firebase:firebase-common:21.0.0] C:\Users\saura\.gradle\caches\9.2.1\transforms\c8a1958910a4edb2b42d1b63014ca0e7\workspace\transformed\firebase-common-21.0.0\AndroidManifest.xml:36:17-109
 114                android:value="com.google.firebase.components.ComponentRegistrar" />
-114-->[com.google.firebase:firebase-common:21.0.0] C:\Users\saura\.gradle\caches\9.2.1\transforms\11c467d122f6fa01baed56e5ede7e8fd\workspace\transformed\firebase-common-21.0.0\AndroidManifest.xml:37:17-82
+114-->[com.google.firebase:firebase-common:21.0.0] C:\Users\saura\.gradle\caches\9.2.1\transforms\c8a1958910a4edb2b42d1b63014ca0e7\workspace\transformed\firebase-common-21.0.0\AndroidManifest.xml:37:17-82
 115        </service>
 116
 117        <activity
-117-->[com.google.android.gms:play-services-base:18.0.1] C:\Users\saura\.gradle\caches\9.2.1\transforms\b577abcb075fa3cd93ac507234877384\workspace\transformed\play-services-base-18.0.1\AndroidManifest.xml:20:9-22:45
+117-->[com.google.android.gms:play-services-base:18.0.1] C:\Users\saura\.gradle\caches\9.2.1\transforms\c2481e8b4dfab99570a0c5fcc9cdc687\workspace\transformed\play-services-base-18.0.1\AndroidManifest.xml:20:9-22:45
 118            android:name="com.google.android.gms.common.api.GoogleApiActivity"
-118-->[com.google.android.gms:play-services-base:18.0.1] C:\Users\saura\.gradle\caches\9.2.1\transforms\b577abcb075fa3cd93ac507234877384\workspace\transformed\play-services-base-18.0.1\AndroidManifest.xml:20:19-85
+118-->[com.google.android.gms:play-services-base:18.0.1] C:\Users\saura\.gradle\caches\9.2.1\transforms\c2481e8b4dfab99570a0c5fcc9cdc687\workspace\transformed\play-services-base-18.0.1\AndroidManifest.xml:20:19-85
 119            android:exported="false"
-119-->[com.google.android.gms:play-services-base:18.0.1] C:\Users\saura\.gradle\caches\9.2.1\transforms\b577abcb075fa3cd93ac507234877384\workspace\transformed\play-services-base-18.0.1\AndroidManifest.xml:22:19-43
+119-->[com.google.android.gms:play-services-base:18.0.1] C:\Users\saura\.gradle\caches\9.2.1\transforms\c2481e8b4dfab99570a0c5fcc9cdc687\workspace\transformed\play-services-base-18.0.1\AndroidManifest.xml:22:19-43
 120            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
-120-->[com.google.android.gms:play-services-base:18.0.1] C:\Users\saura\.gradle\caches\9.2.1\transforms\b577abcb075fa3cd93ac507234877384\workspace\transformed\play-services-base-18.0.1\AndroidManifest.xml:21:19-78
+120-->[com.google.android.gms:play-services-base:18.0.1] C:\Users\saura\.gradle\caches\9.2.1\transforms\c2481e8b4dfab99570a0c5fcc9cdc687\workspace\transformed\play-services-base-18.0.1\AndroidManifest.xml:21:19-78
 121
 122        <provider
-122-->[com.google.firebase:firebase-common:21.0.0] C:\Users\saura\.gradle\caches\9.2.1\transforms\11c467d122f6fa01baed56e5ede7e8fd\workspace\transformed\firebase-common-21.0.0\AndroidManifest.xml:23:9-28:39
+122-->[com.google.firebase:firebase-common:21.0.0] C:\Users\saura\.gradle\caches\9.2.1\transforms\c8a1958910a4edb2b42d1b63014ca0e7\workspace\transformed\firebase-common-21.0.0\AndroidManifest.xml:23:9-28:39
 123            android:name="com.google.firebase.provider.FirebaseInitProvider"
-123-->[com.google.firebase:firebase-common:21.0.0] C:\Users\saura\.gradle\caches\9.2.1\transforms\11c467d122f6fa01baed56e5ede7e8fd\workspace\transformed\firebase-common-21.0.0\AndroidManifest.xml:24:13-77
+123-->[com.google.firebase:firebase-common:21.0.0] C:\Users\saura\.gradle\caches\9.2.1\transforms\c8a1958910a4edb2b42d1b63014ca0e7\workspace\transformed\firebase-common-21.0.0\AndroidManifest.xml:24:13-77
 124            android:authorities="com.network24.player.firebaseinitprovider"
-124-->[com.google.firebase:firebase-common:21.0.0] C:\Users\saura\.gradle\caches\9.2.1\transforms\11c467d122f6fa01baed56e5ede7e8fd\workspace\transformed\firebase-common-21.0.0\AndroidManifest.xml:25:13-72
+124-->[com.google.firebase:firebase-common:21.0.0] C:\Users\saura\.gradle\caches\9.2.1\transforms\c8a1958910a4edb2b42d1b63014ca0e7\workspace\transformed\firebase-common-21.0.0\AndroidManifest.xml:25:13-72
 125            android:directBootAware="true"
-125-->[com.google.firebase:firebase-common:21.0.0] C:\Users\saura\.gradle\caches\9.2.1\transforms\11c467d122f6fa01baed56e5ede7e8fd\workspace\transformed\firebase-common-21.0.0\AndroidManifest.xml:26:13-43
+125-->[com.google.firebase:firebase-common:21.0.0] C:\Users\saura\.gradle\caches\9.2.1\transforms\c8a1958910a4edb2b42d1b63014ca0e7\workspace\transformed\firebase-common-21.0.0\AndroidManifest.xml:26:13-43
 126            android:exported="false"
-126-->[com.google.firebase:firebase-common:21.0.0] C:\Users\saura\.gradle\caches\9.2.1\transforms\11c467d122f6fa01baed56e5ede7e8fd\workspace\transformed\firebase-common-21.0.0\AndroidManifest.xml:27:13-37
+126-->[com.google.firebase:firebase-common:21.0.0] C:\Users\saura\.gradle\caches\9.2.1\transforms\c8a1958910a4edb2b42d1b63014ca0e7\workspace\transformed\firebase-common-21.0.0\AndroidManifest.xml:27:13-37
 127            android:initOrder="100" />
-127-->[com.google.firebase:firebase-common:21.0.0] C:\Users\saura\.gradle\caches\9.2.1\transforms\11c467d122f6fa01baed56e5ede7e8fd\workspace\transformed\firebase-common-21.0.0\AndroidManifest.xml:28:13-36
+127-->[com.google.firebase:firebase-common:21.0.0] C:\Users\saura\.gradle\caches\9.2.1\transforms\c8a1958910a4edb2b42d1b63014ca0e7\workspace\transformed\firebase-common-21.0.0\AndroidManifest.xml:28:13-36
 128
 129        <service
-129-->[androidx.room:room-runtime:2.6.1] C:\Users\saura\.gradle\caches\9.2.1\transforms\b5428764df95780e366b3e5fbd6aae53\workspace\transformed\room-runtime-2.6.1\AndroidManifest.xml:24:9-28:63
+129-->[androidx.room:room-runtime:2.6.1] C:\Users\saura\.gradle\caches\9.2.1\transforms\9e5aa3080e7e50ad14e01a5465ddadf9\workspace\transformed\room-runtime-2.6.1\AndroidManifest.xml:24:9-28:63
 130            android:name="androidx.room.MultiInstanceInvalidationService"
-130-->[androidx.room:room-runtime:2.6.1] C:\Users\saura\.gradle\caches\9.2.1\transforms\b5428764df95780e366b3e5fbd6aae53\workspace\transformed\room-runtime-2.6.1\AndroidManifest.xml:25:13-74
+130-->[androidx.room:room-runtime:2.6.1] C:\Users\saura\.gradle\caches\9.2.1\transforms\9e5aa3080e7e50ad14e01a5465ddadf9\workspace\transformed\room-runtime-2.6.1\AndroidManifest.xml:25:13-74
 131            android:directBootAware="true"
-131-->[androidx.room:room-runtime:2.6.1] C:\Users\saura\.gradle\caches\9.2.1\transforms\b5428764df95780e366b3e5fbd6aae53\workspace\transformed\room-runtime-2.6.1\AndroidManifest.xml:26:13-43
+131-->[androidx.room:room-runtime:2.6.1] C:\Users\saura\.gradle\caches\9.2.1\transforms\9e5aa3080e7e50ad14e01a5465ddadf9\workspace\transformed\room-runtime-2.6.1\AndroidManifest.xml:26:13-43
 132            android:exported="false" />
-132-->[androidx.room:room-runtime:2.6.1] C:\Users\saura\.gradle\caches\9.2.1\transforms\b5428764df95780e366b3e5fbd6aae53\workspace\transformed\room-runtime-2.6.1\AndroidManifest.xml:27:13-37
+132-->[androidx.room:room-runtime:2.6.1] C:\Users\saura\.gradle\caches\9.2.1\transforms\9e5aa3080e7e50ad14e01a5465ddadf9\workspace\transformed\room-runtime-2.6.1\AndroidManifest.xml:27:13-37
 133
 134        <provider
-134-->[androidx.emoji2:emoji2:1.3.0] C:\Users\saura\.gradle\caches\9.2.1\transforms\5d36fa64daec094ec8b5b7294d11421c\workspace\transformed\emoji2-1.3.0\AndroidManifest.xml:24:9-32:20
+134-->[androidx.emoji2:emoji2:1.3.0] C:\Users\saura\.gradle\caches\9.2.1\transforms\595c7582b5f4151f43d55b97f93eb9f4\workspace\transformed\emoji2-1.3.0\AndroidManifest.xml:24:9-32:20
 135            android:name="androidx.startup.InitializationProvider"
-135-->[androidx.emoji2:emoji2:1.3.0] C:\Users\saura\.gradle\caches\9.2.1\transforms\5d36fa64daec094ec8b5b7294d11421c\workspace\transformed\emoji2-1.3.0\AndroidManifest.xml:25:13-67
+135-->[androidx.emoji2:emoji2:1.3.0] C:\Users\saura\.gradle\caches\9.2.1\transforms\595c7582b5f4151f43d55b97f93eb9f4\workspace\transformed\emoji2-1.3.0\AndroidManifest.xml:25:13-67
 136            android:authorities="com.network24.player.androidx-startup"
-136-->[androidx.emoji2:emoji2:1.3.0] C:\Users\saura\.gradle\caches\9.2.1\transforms\5d36fa64daec094ec8b5b7294d11421c\workspace\transformed\emoji2-1.3.0\AndroidManifest.xml:26:13-68
+136-->[androidx.emoji2:emoji2:1.3.0] C:\Users\saura\.gradle\caches\9.2.1\transforms\595c7582b5f4151f43d55b97f93eb9f4\workspace\transformed\emoji2-1.3.0\AndroidManifest.xml:26:13-68
 137            android:exported="false" >
-137-->[androidx.emoji2:emoji2:1.3.0] C:\Users\saura\.gradle\caches\9.2.1\transforms\5d36fa64daec094ec8b5b7294d11421c\workspace\transformed\emoji2-1.3.0\AndroidManifest.xml:27:13-37
+137-->[androidx.emoji2:emoji2:1.3.0] C:\Users\saura\.gradle\caches\9.2.1\transforms\595c7582b5f4151f43d55b97f93eb9f4\workspace\transformed\emoji2-1.3.0\AndroidManifest.xml:27:13-37
 138            <meta-data
-138-->[androidx.emoji2:emoji2:1.3.0] C:\Users\saura\.gradle\caches\9.2.1\transforms\5d36fa64daec094ec8b5b7294d11421c\workspace\transformed\emoji2-1.3.0\AndroidManifest.xml:29:13-31:52
+138-->[androidx.emoji2:emoji2:1.3.0] C:\Users\saura\.gradle\caches\9.2.1\transforms\595c7582b5f4151f43d55b97f93eb9f4\workspace\transformed\emoji2-1.3.0\AndroidManifest.xml:29:13-31:52
 139                android:name="androidx.emoji2.text.EmojiCompatInitializer"
-139-->[androidx.emoji2:emoji2:1.3.0] C:\Users\saura\.gradle\caches\9.2.1\transforms\5d36fa64daec094ec8b5b7294d11421c\workspace\transformed\emoji2-1.3.0\AndroidManifest.xml:30:17-75
+139-->[androidx.emoji2:emoji2:1.3.0] C:\Users\saura\.gradle\caches\9.2.1\transforms\595c7582b5f4151f43d55b97f93eb9f4\workspace\transformed\emoji2-1.3.0\AndroidManifest.xml:30:17-75
 140                android:value="androidx.startup" />
-140-->[androidx.emoji2:emoji2:1.3.0] C:\Users\saura\.gradle\caches\9.2.1\transforms\5d36fa64daec094ec8b5b7294d11421c\workspace\transformed\emoji2-1.3.0\AndroidManifest.xml:31:17-49
+140-->[androidx.emoji2:emoji2:1.3.0] C:\Users\saura\.gradle\caches\9.2.1\transforms\595c7582b5f4151f43d55b97f93eb9f4\workspace\transformed\emoji2-1.3.0\AndroidManifest.xml:31:17-49
 141            <meta-data
-141-->[androidx.lifecycle:lifecycle-process:2.7.0] C:\Users\saura\.gradle\caches\9.2.1\transforms\dad0cab89a3ca6c2342dca702f0c9b7f\workspace\transformed\lifecycle-process-2.7.0\AndroidManifest.xml:29:13-31:52
+141-->[androidx.lifecycle:lifecycle-process:2.7.0] C:\Users\saura\.gradle\caches\9.2.1\transforms\d7573fc9bb980b5d278f2833faa7d4bf\workspace\transformed\lifecycle-process-2.7.0\AndroidManifest.xml:29:13-31:52
 142                android:name="androidx.lifecycle.ProcessLifecycleInitializer"
-142-->[androidx.lifecycle:lifecycle-process:2.7.0] C:\Users\saura\.gradle\caches\9.2.1\transforms\dad0cab89a3ca6c2342dca702f0c9b7f\workspace\transformed\lifecycle-process-2.7.0\AndroidManifest.xml:30:17-78
+142-->[androidx.lifecycle:lifecycle-process:2.7.0] C:\Users\saura\.gradle\caches\9.2.1\transforms\d7573fc9bb980b5d278f2833faa7d4bf\workspace\transformed\lifecycle-process-2.7.0\AndroidManifest.xml:30:17-78
 143                android:value="androidx.startup" />
-143-->[androidx.lifecycle:lifecycle-process:2.7.0] C:\Users\saura\.gradle\caches\9.2.1\transforms\dad0cab89a3ca6c2342dca702f0c9b7f\workspace\transformed\lifecycle-process-2.7.0\AndroidManifest.xml:31:17-49
+143-->[androidx.lifecycle:lifecycle-process:2.7.0] C:\Users\saura\.gradle\caches\9.2.1\transforms\d7573fc9bb980b5d278f2833faa7d4bf\workspace\transformed\lifecycle-process-2.7.0\AndroidManifest.xml:31:17-49
 144            <meta-data
-144-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\saura\.gradle\caches\9.2.1\transforms\602cfbe675db0ae5429daf2566600b6e\workspace\transformed\profileinstaller-1.4.0\AndroidManifest.xml:29:13-31:52
+144-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\saura\.gradle\caches\9.2.1\transforms\d4224277171908ec3a9892baee74252f\workspace\transformed\profileinstaller-1.4.0\AndroidManifest.xml:29:13-31:52
 145                android:name="androidx.profileinstaller.ProfileInstallerInitializer"
-145-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\saura\.gradle\caches\9.2.1\transforms\602cfbe675db0ae5429daf2566600b6e\workspace\transformed\profileinstaller-1.4.0\AndroidManifest.xml:30:17-85
+145-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\saura\.gradle\caches\9.2.1\transforms\d4224277171908ec3a9892baee74252f\workspace\transformed\profileinstaller-1.4.0\AndroidManifest.xml:30:17-85
 146                android:value="androidx.startup" />
-146-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\saura\.gradle\caches\9.2.1\transforms\602cfbe675db0ae5429daf2566600b6e\workspace\transformed\profileinstaller-1.4.0\AndroidManifest.xml:31:17-49
+146-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\saura\.gradle\caches\9.2.1\transforms\d4224277171908ec3a9892baee74252f\workspace\transformed\profileinstaller-1.4.0\AndroidManifest.xml:31:17-49
 147        </provider>
 148
 149        <meta-data
-149-->[com.google.android.gms:play-services-basement:18.3.0] C:\Users\saura\.gradle\caches\9.2.1\transforms\f127806e51fe7e5e4c53a9c505c3c7e9\workspace\transformed\play-services-basement-18.3.0\AndroidManifest.xml:21:9-23:69
+149-->[com.google.android.gms:play-services-basement:18.3.0] C:\Users\saura\.gradle\caches\9.2.1\transforms\4cbb068cd33caadd24feb9d9a6f8c73f\workspace\transformed\play-services-basement-18.3.0\AndroidManifest.xml:21:9-23:69
 150            android:name="com.google.android.gms.version"
-150-->[com.google.android.gms:play-services-basement:18.3.0] C:\Users\saura\.gradle\caches\9.2.1\transforms\f127806e51fe7e5e4c53a9c505c3c7e9\workspace\transformed\play-services-basement-18.3.0\AndroidManifest.xml:22:13-58
+150-->[com.google.android.gms:play-services-basement:18.3.0] C:\Users\saura\.gradle\caches\9.2.1\transforms\4cbb068cd33caadd24feb9d9a6f8c73f\workspace\transformed\play-services-basement-18.3.0\AndroidManifest.xml:22:13-58
 151            android:value="@integer/google_play_services_version" />
-151-->[com.google.android.gms:play-services-basement:18.3.0] C:\Users\saura\.gradle\caches\9.2.1\transforms\f127806e51fe7e5e4c53a9c505c3c7e9\workspace\transformed\play-services-basement-18.3.0\AndroidManifest.xml:23:13-66
+151-->[com.google.android.gms:play-services-basement:18.3.0] C:\Users\saura\.gradle\caches\9.2.1\transforms\4cbb068cd33caadd24feb9d9a6f8c73f\workspace\transformed\play-services-basement-18.3.0\AndroidManifest.xml:23:13-66
 152
 153        <receiver
-153-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\saura\.gradle\caches\9.2.1\transforms\602cfbe675db0ae5429daf2566600b6e\workspace\transformed\profileinstaller-1.4.0\AndroidManifest.xml:34:9-52:20
+153-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\saura\.gradle\caches\9.2.1\transforms\d4224277171908ec3a9892baee74252f\workspace\transformed\profileinstaller-1.4.0\AndroidManifest.xml:34:9-52:20
 154            android:name="androidx.profileinstaller.ProfileInstallReceiver"
-154-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\saura\.gradle\caches\9.2.1\transforms\602cfbe675db0ae5429daf2566600b6e\workspace\transformed\profileinstaller-1.4.0\AndroidManifest.xml:35:13-76
+154-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\saura\.gradle\caches\9.2.1\transforms\d4224277171908ec3a9892baee74252f\workspace\transformed\profileinstaller-1.4.0\AndroidManifest.xml:35:13-76
 155            android:directBootAware="false"
-155-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\saura\.gradle\caches\9.2.1\transforms\602cfbe675db0ae5429daf2566600b6e\workspace\transformed\profileinstaller-1.4.0\AndroidManifest.xml:36:13-44
+155-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\saura\.gradle\caches\9.2.1\transforms\d4224277171908ec3a9892baee74252f\workspace\transformed\profileinstaller-1.4.0\AndroidManifest.xml:36:13-44
 156            android:enabled="true"
-156-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\saura\.gradle\caches\9.2.1\transforms\602cfbe675db0ae5429daf2566600b6e\workspace\transformed\profileinstaller-1.4.0\AndroidManifest.xml:37:13-35
+156-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\saura\.gradle\caches\9.2.1\transforms\d4224277171908ec3a9892baee74252f\workspace\transformed\profileinstaller-1.4.0\AndroidManifest.xml:37:13-35
 157            android:exported="true"
-157-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\saura\.gradle\caches\9.2.1\transforms\602cfbe675db0ae5429daf2566600b6e\workspace\transformed\profileinstaller-1.4.0\AndroidManifest.xml:38:13-36
+157-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\saura\.gradle\caches\9.2.1\transforms\d4224277171908ec3a9892baee74252f\workspace\transformed\profileinstaller-1.4.0\AndroidManifest.xml:38:13-36
 158            android:permission="android.permission.DUMP" >
-158-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\saura\.gradle\caches\9.2.1\transforms\602cfbe675db0ae5429daf2566600b6e\workspace\transformed\profileinstaller-1.4.0\AndroidManifest.xml:39:13-57
+158-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\saura\.gradle\caches\9.2.1\transforms\d4224277171908ec3a9892baee74252f\workspace\transformed\profileinstaller-1.4.0\AndroidManifest.xml:39:13-57
 159            <intent-filter>
-159-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\saura\.gradle\caches\9.2.1\transforms\602cfbe675db0ae5429daf2566600b6e\workspace\transformed\profileinstaller-1.4.0\AndroidManifest.xml:40:13-42:29
+159-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\saura\.gradle\caches\9.2.1\transforms\d4224277171908ec3a9892baee74252f\workspace\transformed\profileinstaller-1.4.0\AndroidManifest.xml:40:13-42:29
 160                <action android:name="androidx.profileinstaller.action.INSTALL_PROFILE" />
-160-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\saura\.gradle\caches\9.2.1\transforms\602cfbe675db0ae5429daf2566600b6e\workspace\transformed\profileinstaller-1.4.0\AndroidManifest.xml:41:17-91
-160-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\saura\.gradle\caches\9.2.1\transforms\602cfbe675db0ae5429daf2566600b6e\workspace\transformed\profileinstaller-1.4.0\AndroidManifest.xml:41:25-88
+160-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\saura\.gradle\caches\9.2.1\transforms\d4224277171908ec3a9892baee74252f\workspace\transformed\profileinstaller-1.4.0\AndroidManifest.xml:41:17-91
+160-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\saura\.gradle\caches\9.2.1\transforms\d4224277171908ec3a9892baee74252f\workspace\transformed\profileinstaller-1.4.0\AndroidManifest.xml:41:25-88
 161            </intent-filter>
 162            <intent-filter>
-162-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\saura\.gradle\caches\9.2.1\transforms\602cfbe675db0ae5429daf2566600b6e\workspace\transformed\profileinstaller-1.4.0\AndroidManifest.xml:43:13-45:29
+162-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\saura\.gradle\caches\9.2.1\transforms\d4224277171908ec3a9892baee74252f\workspace\transformed\profileinstaller-1.4.0\AndroidManifest.xml:43:13-45:29
 163                <action android:name="androidx.profileinstaller.action.SKIP_FILE" />
-163-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\saura\.gradle\caches\9.2.1\transforms\602cfbe675db0ae5429daf2566600b6e\workspace\transformed\profileinstaller-1.4.0\AndroidManifest.xml:44:17-85
-163-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\saura\.gradle\caches\9.2.1\transforms\602cfbe675db0ae5429daf2566600b6e\workspace\transformed\profileinstaller-1.4.0\AndroidManifest.xml:44:25-82
+163-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\saura\.gradle\caches\9.2.1\transforms\d4224277171908ec3a9892baee74252f\workspace\transformed\profileinstaller-1.4.0\AndroidManifest.xml:44:17-85
+163-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\saura\.gradle\caches\9.2.1\transforms\d4224277171908ec3a9892baee74252f\workspace\transformed\profileinstaller-1.4.0\AndroidManifest.xml:44:25-82
 164            </intent-filter>
 165            <intent-filter>
-165-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\saura\.gradle\caches\9.2.1\transforms\602cfbe675db0ae5429daf2566600b6e\workspace\transformed\profileinstaller-1.4.0\AndroidManifest.xml:46:13-48:29
+165-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\saura\.gradle\caches\9.2.1\transforms\d4224277171908ec3a9892baee74252f\workspace\transformed\profileinstaller-1.4.0\AndroidManifest.xml:46:13-48:29
 166                <action android:name="androidx.profileinstaller.action.SAVE_PROFILE" />
-166-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\saura\.gradle\caches\9.2.1\transforms\602cfbe675db0ae5429daf2566600b6e\workspace\transformed\profileinstaller-1.4.0\AndroidManifest.xml:47:17-88
-166-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\saura\.gradle\caches\9.2.1\transforms\602cfbe675db0ae5429daf2566600b6e\workspace\transformed\profileinstaller-1.4.0\AndroidManifest.xml:47:25-85
+166-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\saura\.gradle\caches\9.2.1\transforms\d4224277171908ec3a9892baee74252f\workspace\transformed\profileinstaller-1.4.0\AndroidManifest.xml:47:17-88
+166-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\saura\.gradle\caches\9.2.1\transforms\d4224277171908ec3a9892baee74252f\workspace\transformed\profileinstaller-1.4.0\AndroidManifest.xml:47:25-85
 167            </intent-filter>
 168            <intent-filter>
-168-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\saura\.gradle\caches\9.2.1\transforms\602cfbe675db0ae5429daf2566600b6e\workspace\transformed\profileinstaller-1.4.0\AndroidManifest.xml:49:13-51:29
+168-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\saura\.gradle\caches\9.2.1\transforms\d4224277171908ec3a9892baee74252f\workspace\transformed\profileinstaller-1.4.0\AndroidManifest.xml:49:13-51:29
 169                <action android:name="androidx.profileinstaller.action.BENCHMARK_OPERATION" />
-169-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\saura\.gradle\caches\9.2.1\transforms\602cfbe675db0ae5429daf2566600b6e\workspace\transformed\profileinstaller-1.4.0\AndroidManifest.xml:50:17-95
-169-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\saura\.gradle\caches\9.2.1\transforms\602cfbe675db0ae5429daf2566600b6e\workspace\transformed\profileinstaller-1.4.0\AndroidManifest.xml:50:25-92
+169-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\saura\.gradle\caches\9.2.1\transforms\d4224277171908ec3a9892baee74252f\workspace\transformed\profileinstaller-1.4.0\AndroidManifest.xml:50:17-95
+169-->[androidx.profileinstaller:profileinstaller:1.4.0] C:\Users\saura\.gradle\caches\9.2.1\transforms\d4224277171908ec3a9892baee74252f\workspace\transformed\profileinstaller-1.4.0\AndroidManifest.xml:50:25-92
 170            </intent-filter>
 171        </receiver>
 172    </application>

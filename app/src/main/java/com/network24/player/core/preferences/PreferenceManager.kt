@@ -20,7 +20,16 @@ class PreferenceManager(context: Context) {
         private const val KEY_ACTIVE_CONNECTIONS = "active_connections"
         private const val KEY_MAX_CONNECTIONS = "max_connections"
         private const val KEY_IS_TRIAL = "is_trial"
+
+        private const val KEY_LAST_SYNC_TIME = "last_sync_time"
+
+        // Chat
+        private const val KEY_CHAT_LAST_ROOM_ID = "chat_last_room_id"
     }
+
+    // -------------------------
+    // Login / Credentials
+    // -------------------------
 
     fun saveLogin(
         server: String,
@@ -36,13 +45,44 @@ class PreferenceManager(context: Context) {
             .apply()
     }
 
-    fun getServer() = prefs.getString(KEY_SERVER, "") ?: ""
+    fun getServer(): String = prefs.getString(KEY_SERVER, "") ?: ""
+    fun getUsername(): String = prefs.getString(KEY_USERNAME, "") ?: ""
+    fun getPassword(): String = prefs.getString(KEY_PASSWORD, "") ?: ""
+    fun isRememberMe(): Boolean = prefs.getBoolean(KEY_REMEMBER, false)
 
-    fun getUsername() = prefs.getString(KEY_USERNAME, "") ?: ""
+    /**
+     * Always returns a LoginCredentials object (may contain empty strings).
+     * Useful when you want a non-null object.
+     */
+    fun getCredentials(): LoginCredentials {
+        return LoginCredentials(
+            server = getServer(),
+            username = getUsername(),
+            password = getPassword()
+        )
+    }
 
-    fun getPassword() = prefs.getString(KEY_PASSWORD, "") ?: ""
+    /**
+     * Returns null when credentials are missing.
+     * This matches SyncManager usage.
+     */
+    fun getLoginCredentials(): LoginCredentials? {
+        val server = getServer().trim()
+        val username = getUsername().trim()
+        val password = getPassword()
 
-    fun isRememberMe() = prefs.getBoolean(KEY_REMEMBER, false)
+        if (server.isBlank() || username.isBlank() || password.isBlank()) return null
+
+        return LoginCredentials(
+            server = server,
+            username = username,
+            password = password
+        )
+    }
+
+    // -------------------------
+    // User Info
+    // -------------------------
 
     fun saveUserInfo(
         username: String,
@@ -52,7 +92,7 @@ class PreferenceManager(context: Context) {
         maxConnections: Int,
         isTrial: Boolean
     ) {
-
+        // username param currently unused (keeping it for API parity/future)
         prefs.edit()
             .putString(KEY_STATUS, status)
             .putLong(KEY_EXPIRY, expiry)
@@ -60,52 +100,29 @@ class PreferenceManager(context: Context) {
             .putInt(KEY_MAX_CONNECTIONS, maxConnections)
             .putBoolean(KEY_IS_TRIAL, isTrial)
             .apply()
-
     }
 
-    fun getStatus() =
-        prefs.getString(KEY_STATUS, "Unknown") ?: "Unknown"
+    fun getStatus(): String = prefs.getString(KEY_STATUS, "Unknown") ?: "Unknown"
+    fun getExpiry(): Long = prefs.getLong(KEY_EXPIRY, 0L)
+    fun getActiveConnections(): Int = prefs.getInt(KEY_ACTIVE_CONNECTIONS, 0)
+    fun getMaxConnections(): Int = prefs.getInt(KEY_MAX_CONNECTIONS, 0)
+    fun isTrial(): Boolean = prefs.getBoolean(KEY_IS_TRIAL, false)
 
-    fun getExpiry() =
-        prefs.getLong(KEY_EXPIRY, 0L)
+    // -------------------------
+    // Sync time
+    // -------------------------
 
-    fun getActiveConnections() =
-        prefs.getInt(KEY_ACTIVE_CONNECTIONS, 0)
-
-    fun getMaxConnections() =
-        prefs.getInt(KEY_MAX_CONNECTIONS, 0)
-
-    fun isTrial() =
-        prefs.getBoolean(KEY_IS_TRIAL, false)
-
-    fun clear() {
-        prefs.edit().clear().apply()
-    }
-
-    fun getCredentials(): LoginCredentials {
-
-        return LoginCredentials(
-            server = getServer(),
-            username = getUsername(),
-            password = getPassword()
-        )
-
-    }
-
-    // Sync time save karne ke liye
     fun setLastSyncTime(time: Long) {
-        prefs.edit().putLong("last_sync_time", time).apply()
+        prefs.edit().putLong(KEY_LAST_SYNC_TIME, time).apply()
     }
 
-    // Sync time nikalne ke liye
     fun getLastSyncTime(): Long {
-        return prefs.getLong("last_sync_time", 0L)
+        return prefs.getLong(KEY_LAST_SYNC_TIME, 0L)
     }
 
-    // =========================
-// Chat preferences
-// =========================
-    private val KEY_CHAT_LAST_ROOM_ID = "chat_last_room_id"
+    // -------------------------
+    // Chat preferences
+    // -------------------------
 
     fun setLastChatRoomId(roomId: String) {
         prefs.edit().putString(KEY_CHAT_LAST_ROOM_ID, roomId).apply()
@@ -125,5 +142,11 @@ class PreferenceManager(context: Context) {
         return prefs.getLong(chatLastSeenKey(roomId), 0L)
     }
 
+    // -------------------------
+    // Maintenance
+    // -------------------------
 
+    fun clear() {
+        prefs.edit().clear().apply()
+    }
 }

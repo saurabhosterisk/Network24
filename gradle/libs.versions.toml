@@ -1,7 +1,7 @@
 [versions]
 agp = "8.8.2"
-kotlin = "2.1.21"
-ksp = "2.1.21-2.0.1"
+kotlin = "1.9.24"
+ksp = "1.9.24-1.0.20"
 
 coreKtx = "1.16.0"
 junit = "4.13.2"
@@ -18,11 +18,12 @@ gson = "2.13.1"
 media3 = "1.8.0"
 recyclerview = "1.4.0"
 glide = "4.16.0"
-coroutines = "1.10.2"
+coroutines = "1.8.1"
 coil = "2.7.0"
 
 firebase-bom = "33.1.2"
 google-services = "4.4.2"
+roomVersion = "2.6.1"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -31,6 +32,9 @@ androidx-activity = { group = "androidx.activity", name = "activity", version.re
 androidx-constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }
 androidx-recyclerview = { group = "androidx.recyclerview", name = "recyclerview", version.ref = "recyclerview" }
 
+androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "roomVersion" }
+androidx-room-ktx = { module = "androidx.room:room-ktx", version.ref = "roomVersion" }
+androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "roomVersion" }
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 
 retrofit = { group = "com.squareup.retrofit2", name = "retrofit", version.ref = "retrofit" }

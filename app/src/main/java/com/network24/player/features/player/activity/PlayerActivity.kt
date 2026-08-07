@@ -19,7 +19,6 @@ import androidx.media3.common.Player
 import androidx.media3.ui.AspectRatioFrameLayout
 import com.network24.player.R
 import com.network24.player.core.base.BaseActivity
-import com.network24.player.core.cache.CacheManager
 import com.network24.player.core.preferences.PreferenceManager
 import com.network24.player.databinding.ActivityPlayerBinding
 import com.network24.player.features.live.models.LiveChannel
@@ -129,7 +128,7 @@ class PlayerActivity : BaseActivity() {
         setContentView(binding.root)
 
         prefs = PreferenceManager(this)
-        repository = LiveRepository(CacheManager(this))
+        repository = LiveRepository(this)
 
         // FULLSCREEN IMMERSIVE MODE
         WindowCompat.setDecorFitsSystemWindows(window, false)
@@ -339,22 +338,7 @@ class PlayerActivity : BaseActivity() {
         }
     }
 
-    private fun updateChannelUI(channel: LiveChannel?) {
-        if (channel == null) return
 
-        // Naya channel aane par purane retry reset kar do aur error hide kar do
-        retryJob?.cancel()
-        retryCount = 0
-        binding.txtPlayerError.visibility = View.GONE
-
-        val num = channel.num?.let { "$it - " } ?: ""
-        val name = channel.name ?: "Unknown Channel"
-        binding.txtChannelTitle.text = "$num$name"
-
-        channel.stream_id?.let {
-            loadEpg(it)
-        }
-    }
 
     // =========================================================
     // CHANNEL SURFING (NEXT / PREV LOGIC)
@@ -417,27 +401,7 @@ class PlayerActivity : BaseActivity() {
     // =========================================================
     // EPG LOGIC
     // =========================================================
-    private fun loadEpg(streamId: Int) {
-        lifecycleScope.launch {
-            try {
-                val epg = repository.getShortEPG(
-                    prefs.getServer(),
-                    prefs.getUsername(),
-                    prefs.getPassword(),
-                    streamId
-                )
-                updateEpg(epg)
-            } catch (e: Exception) {
-                binding.txtNowTitle.text = "No EPG Data"
-                binding.txtNextTitle.text = ""
-                binding.txtNowTime.text = ""
-                binding.txtNextTime.text = ""
-                val layoutParams = binding.epgProgress.layoutParams
-                layoutParams.width = 0
-                binding.epgProgress.layoutParams = layoutParams
-            }
-        }
-    }
+
 
     private fun decode(value: String?): String {
         if (value.isNullOrEmpty()) return ""
@@ -476,13 +440,59 @@ class PlayerActivity : BaseActivity() {
         }
     }
 
-    private fun updateEpg(response: ShortEPGResponse) {
-        val now = response.epg_listings.getOrNull(0)
-        val next = response.epg_listings.getOrNull(1)
+    // =========================================================
+    // 1. UPDATE CHANNEL UI
+    // =========================================================
+    private fun updateChannelUI(channel: LiveChannel?) {
+        if (channel == null) return
+
+        retryJob?.cancel()
+        retryCount = 0
+        binding.txtPlayerError.visibility = View.GONE
+
+        val num = channel.num?.let { "$it - " } ?: ""
+        val name = channel.name ?: "Unknown Channel"
+        binding.txtChannelTitle.text = "$num$name"
+
+        // 🔥 NAYA LOGIC: epg_channel_id use karein DB ke liye
+        val epgId = channel.epg_channel_id ?: channel.stream_id?.toString() ?: ""
+        if (epgId.isNotEmpty()) {
+            loadEpg(epgId)
+        }
+    }
+
+    // =========================================================
+    // 2. LOAD EPG (DATABASE SE)
+    // =========================================================
+    private fun loadEpg(epgId: String) {
+        lifecycleScope.launch {
+            try {
+                // 🔥 NAYA LOGIC: Ye direct aapke fast Room Database aur Cache se aayega
+                val (nowEpg, nextEpg) = repository.getNowNextEpg(epgId)
+                updateEpg(nowEpg, nextEpg)
+            } catch (e: Exception) {
+                binding.txtNowTitle.text = "No EPG Data"
+                binding.txtNextTitle.text = ""
+                binding.txtNowTime.text = ""
+                binding.txtNextTime.text = ""
+
+                val layoutParams = binding.epgProgress.layoutParams
+                layoutParams.width = 0
+                binding.epgProgress.layoutParams = layoutParams
+            }
+        }
+    }
+
+    // =========================================================
+    // 3. UPDATE EPG UI
+    // =========================================================
+    private fun updateEpg(now: com.network24.player.core.database.entity.EpgEntity?, next: com.network24.player.core.database.entity.EpgEntity?) {
         if (now != null) {
-            binding.txtNowTitle.text = decode(now.title)
-            binding.txtNowTime.text = "${formatTime(now.start)} - ${formatTime(now.end)}"
-            val progressPercent = calculateEpgProgress(now.start, now.end)
+            // DB Titles pehle se hi clean aate hain (Base64 decode ki zaroorat nahi)
+            binding.txtNowTitle.text = now.title ?: "No Program Info"
+            binding.txtNowTime.text = "${formatTime(now.startTimestamp)} - ${formatTime(now.stopTimestamp)}"
+
+            val progressPercent = calculateEpgProgress(now.startTimestamp, now.stopTimestamp)
             binding.epgTrack.post {
                 val trackWidth = binding.epgTrack.width
                 val layoutParams = binding.epgProgress.layoutParams
@@ -496,12 +506,40 @@ class PlayerActivity : BaseActivity() {
             layoutParams.width = 0
             binding.epgProgress.layoutParams = layoutParams
         }
+
         if (next != null) {
-            binding.txtNextTitle.text = decode(next.title)
-            binding.txtNextTime.text = "${formatTime(next.start)} - ${formatTime(next.end)}"
+            binding.txtNextTitle.text = next.title ?: ""
+            binding.txtNextTime.text = "${formatTime(next.startTimestamp)} - ${formatTime(next.stopTimestamp)}"
         } else {
             binding.txtNextTitle.text = ""
             binding.txtNextTime.text = ""
         }
     }
+
+    // Ye do helper functions bhi Long format ke liye update hone chahiye:
+    private fun formatTime(timeMs: Long?): String {
+        if (timeMs == null || timeMs == 0L) return ""
+        return try {
+            val output = java.text.SimpleDateFormat("hh:mm a", java.util.Locale.getDefault())
+            output.format(timeMs)
+        } catch (e: Exception) {
+            ""
+        }
+    }
+
+    private fun calculateEpgProgress(startTimeMs: Long?, endTimeMs: Long?): Float {
+        if (startTimeMs == null || endTimeMs == null || startTimeMs == 0L || endTimeMs == 0L) return 0f
+        return try {
+            val currentTime = System.currentTimeMillis()
+            if (currentTime <= startTimeMs) return 0f
+            if (currentTime >= endTimeMs) return 1f
+
+            val totalDuration = endTimeMs - startTimeMs
+            val elapsed = currentTime - startTimeMs
+            elapsed.toFloat() / totalDuration.toFloat()
+        } catch (e: Exception) {
+            0f
+        }
+    }
+
 }

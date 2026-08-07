@@ -4,6 +4,7 @@ import com.network24.player.features.live.models.LiveCategory
 import com.network24.player.features.live.models.LiveChannel
 import com.network24.player.common.models.LoginResponse
 import com.network24.player.features.live.models.ShortEPGResponse
+import okhttp3.ResponseBody
 import retrofit2.Response
 import retrofit2.http.GET
 import retrofit2.http.Query
@@ -45,4 +46,10 @@ interface ApiService {
         @Query("limit") limit: Int = 2
 
     ): Response<ShortEPGResponse>
+
+    @GET("xmltv.php")
+    suspend fun getXmlTv(
+        @Query("username") username: String,
+        @Query("password") password: String
+    ): Response<ResponseBody>
 }

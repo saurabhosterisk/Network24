@@ -1,29 +1,30 @@
 package com.network24.player.features.live.repository
 
-import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
-import com.network24.player.core.api.ApiClient
-import com.network24.player.core.cache.CacheConfig
-import com.network24.player.core.cache.CacheKeys
-import com.network24.player.core.cache.CacheManager
-import com.network24.player.core.cache.MemoryCache
+import android.content.Context
+import com.network24.player.core.cache.memory.CacheKeys as MemKeys
+import com.network24.player.core.cache.memory.CacheTtl
+import com.network24.player.core.cache.memory.MemoryCache
+import com.network24.player.core.database.DatabaseProvider
+import com.network24.player.core.database.entity.CategoryType
+import com.network24.player.core.database.mapper.toLiveCategory
+import com.network24.player.core.database.mapper.toLiveChannel
+import com.network24.player.core.database.mapper.toEpgListing
+import com.network24.player.core.sync.SyncManager
+import com.network24.player.core.sync.SyncResult
 import com.network24.player.features.live.models.LiveCategory
 import com.network24.player.features.live.models.LiveChannel
 import com.network24.player.features.live.models.ShortEPGResponse
-import com.network24.player.features.live.repository.SyncCallback
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class LiveRepository(
-    private val cache: CacheManager
-) {
-    private val gson = Gson()
 
-    // ========================================================
-    // 🔥 NAYA FUNCTION: EK SAATH SAB DATA DOWNLOAD KARNE KE LIYE
-    // ========================================================
+class LiveRepository(private val context: Context) {
+
+    private val db = DatabaseProvider.get(context)
+    private val sync = SyncManager(context)
+
     fun syncAllData(
         server: String,
         username: String,
@@ -32,64 +33,21 @@ class LiveRepository(
     ) {
         CoroutineScope(Dispatchers.IO).launch {
             try {
-                val baseUrl = server.trim().trimEnd('/') + "/"
+                val r1 = sync.syncLiveCategories(force = true)
+                if (r1 is SyncResult.Error) throw Exception(r1.message)
 
-                // 1. Download Categories
-                val catResponse = ApiClient.get(baseUrl).getLiveCategories(
-                    username = username,
-                    password = password
-                )
+                val r2 = sync.syncLiveChannelsAll(force = true)
+                if (r2 is SyncResult.Error) throw Exception(r2.message)
 
-                if (catResponse.isSuccessful && catResponse.body() != null) {
-                    val categories = catResponse.body()!!
-                    cache.saveJson(CacheKeys.LIVE_CATEGORIES, gson.toJson(categories))
-                    // Categories choti hoti hain, toh isko RAM me rakhna theek hai
-                    MemoryCache.put(CacheKeys.LIVE_CATEGORIES, categories)
-                } else {
-                    throw Exception("Failed to sync categories. Server returned an error.")
-                }
+                MemoryCache.invalidate(MemKeys.LIVE_CATEGORIES)
+                MemoryCache.invalidate(MemKeys.LIVE_CHANNELS_ALL)
 
-                // 2. Download All Channels at once
-                val channelsResponse = ApiClient.get(baseUrl).getLiveStreams(
-                    username = username,
-                    password = password,
-                    categoryId = "" // Empty ID usually returns ALL channels
-                )
-
-                if (channelsResponse.isSuccessful && channelsResponse.body() != null) {
-                    val allChannels = channelsResponse.body()!!
-
-                    // 🔥 FIX: Save ONLY to Disk, NOT in RAM (MemoryCache removed from here)
-                    cache.saveJson(CacheKeys.liveChannels("all"), gson.toJson(allChannels))
-
-                    // 🔥 SMART CACHING: Split by category and save ONLY to Disk
-                    val channelsByCategory = allChannels.groupBy { it.category_id ?: "" }
-                    channelsByCategory.forEach { (catId, channelsList) ->
-                        if (catId.isNotEmpty()) {
-                            val cacheKey = CacheKeys.liveChannels(catId)
-                            // Sirf storage me save karo, RAM free rakho
-                            cache.saveJson(cacheKey, gson.toJson(channelsList))
-                            // MemoryCache.put() yahan se hata diya gaya hai!
-                        }
-                    }
-                } else {
-                    throw Exception("Failed to sync channels. Server returned an error.")
-                }
-
-                // 3. Agar sab kuch successfully download aur save ho gaya
-                withContext(Dispatchers.Main) {
-                    callback.onSuccess()
-                }
-
+                withContext(Dispatchers.Main) { callback.onSuccess() }
             } catch (e: Exception) {
-                e.printStackTrace()
-                withContext(Dispatchers.Main) {
-                    callback.onError(e.message ?: "Unknown Error Occurred")
-                }
+                withContext(Dispatchers.Main) { callback.onError(e.message ?: "Unknown Error Occurred") }
             }
         }
     }
-
 
     suspend fun getCategories(
         server: String,
@@ -97,33 +55,23 @@ class LiveRepository(
         password: String,
         forceRefresh: Boolean = false
     ): List<LiveCategory> {
-        val cacheKey = CacheKeys.LIVE_CATEGORIES
-        // 1. RAM (Memory) se check karein (Sabse fast)
-        MemoryCache.get<List<LiveCategory>>(cacheKey)?.let {
-            return it
+        MemoryCache.get<List<LiveCategory>>(MemKeys.LIVE_CATEGORIES)?.let { return it }
+
+        val roomList = db.categoryDao().getByType(CategoryType.LIVE).map { it.toLiveCategory() }
+        if (roomList.isNotEmpty() && !forceRefresh) {
+            MemoryCache.put(MemKeys.LIVE_CATEGORIES, roomList, CacheTtl.CATEGORIES_MS)
+            return roomList
         }
-        // 2. Disk (CacheManager) se check karein
-        if (!forceRefresh && !cache.isExpired(cacheKey, CacheConfig.CACHE_DURATION)) {
-            cache.loadJson(cacheKey)?.let { json ->
-                val type = object : TypeToken<List<LiveCategory>>() {}.type
-                val list: List<LiveCategory> = gson.fromJson(json, type)
-                MemoryCache.put(cacheKey, list)
-                return list
-            }
+
+        val syncResult = sync.syncLiveCategories(force = true)
+        if (syncResult is SyncResult.Error) {
+            if (roomList.isNotEmpty()) return roomList
+            throw Exception(syncResult.message)
         }
-        // 3. Network se layein (Agar SyncAllData pehle nahi chala, toh hi yahan aayega)
-        val baseUrl = server.trim().trimEnd('/') + "/"
-        val response = ApiClient.get(baseUrl).getLiveCategories(
-            username = username,
-            password = password
-        )
-        if (!response.isSuccessful || response.body() == null) {
-            throw Exception("Unable to load Live Categories")
-        }
-        val list = response.body()!!
-        cache.saveJson(cacheKey, gson.toJson(list))
-        MemoryCache.put(cacheKey, list)
-        return list
+
+        val fresh = db.categoryDao().getByType(CategoryType.LIVE).map { it.toLiveCategory() }
+        MemoryCache.put(MemKeys.LIVE_CATEGORIES, fresh, CacheTtl.CATEGORIES_MS)
+        return fresh
     }
 
     suspend fun getChannels(
@@ -133,37 +81,36 @@ class LiveRepository(
         categoryId: String,
         forceRefresh: Boolean = false
     ): List<LiveChannel> {
-        // Agar categoryId empty hai, toh hum "all" wala cache check karenge
-        val safeCategoryId = if (categoryId.isEmpty()) "all" else categoryId
-        val cacheKey = CacheKeys.liveChannels(safeCategoryId)
+        val safeCategoryId = if (categoryId.isBlank()) "all" else categoryId
+        val memKey = MemKeys.liveChannels(safeCategoryId)
 
-        // 1. RAM check
-        MemoryCache.get<List<LiveChannel>>(cacheKey)?.let {
-            return it
+        MemoryCache.get<List<LiveChannel>>(memKey)?.let { return it }
+
+        val roomList = if (safeCategoryId == "all") {
+            db.channelDao().getAll().map { it.toLiveChannel() }
+        } else {
+            db.channelDao().getByCategory(safeCategoryId).map { it.toLiveChannel() }
         }
-        // 2. Disk check
-        if (!forceRefresh && !cache.isExpired(cacheKey, CacheConfig.CACHE_DURATION)) {
-            cache.loadJson(cacheKey)?.let { json ->
-                val type = object : TypeToken<List<LiveChannel>>() {}.type
-                val list: List<LiveChannel> = gson.fromJson(json, type)
-                MemoryCache.put(cacheKey, list)
-                return list
-            }
+
+        if (roomList.isNotEmpty() && !forceRefresh) {
+            MemoryCache.put(memKey, roomList, CacheTtl.CHANNELS_MS)
+            return roomList
         }
-        // 3. API Call (Agar data pehle download nahi hua)
-        val baseUrl = server.trim().trimEnd('/') + "/"
-        val response = ApiClient.get(baseUrl).getLiveStreams(
-            username = username,
-            password = password,
-            categoryId = categoryId
-        )
-        if (!response.isSuccessful || response.body() == null) {
-            throw Exception("Unable to load Channels")
+
+        val syncResult = sync.syncLiveChannelsAll(force = true)
+        if (syncResult is SyncResult.Error) {
+            if (roomList.isNotEmpty()) return roomList
+            throw Exception(syncResult.message)
         }
-        val list = response.body()!!
-        cache.saveJson(cacheKey, gson.toJson(list))
-        MemoryCache.put(cacheKey, list)
-        return list
+
+        val fresh = if (safeCategoryId == "all") {
+            db.channelDao().getAll().map { it.toLiveChannel() }
+        } else {
+            db.channelDao().getByCategory(safeCategoryId).map { it.toLiveChannel() }
+        }
+
+        MemoryCache.put(memKey, fresh, CacheTtl.CHANNELS_MS)
+        return fresh
     }
 
     suspend fun getShortEPG(
@@ -172,21 +119,53 @@ class LiveRepository(
         password: String,
         streamId: Int
     ): ShortEPGResponse {
-        val memoryKey = "epg_short_$streamId"
-        MemoryCache.get<ShortEPGResponse>(memoryKey)?.let {
+        val memKey = MemKeys.epg(streamId)
+
+        MemoryCache.get<ShortEPGResponse>(memKey)?.let { return it }
+
+        val roomListings = db.epgDao().getByStream(streamId)
+        if (roomListings.isNotEmpty()) {
+            val epg = ShortEPGResponse(epg_listings = roomListings.map { it.toEpgListing() })
+            MemoryCache.put(memKey, epg, CacheTtl.EPG_MS)
+            return epg
+        }
+
+        val syncResult = sync.syncShortEpg(streamId = streamId, force = true)
+        if (syncResult is SyncResult.Error) throw Exception(syncResult.message)
+
+        val freshListings = db.epgDao().getByStream(streamId)
+        val fresh = ShortEPGResponse(epg_listings = freshListings.map { it.toEpgListing() })
+        MemoryCache.put(memKey, fresh, CacheTtl.EPG_MS)
+        return fresh
+    }
+
+    /**
+     * Gets "Now Playing" and "Next Playing" EPG data for a specific channel using the bulk XMLTV data.
+     * Hits the memory cache first to prevent UI stuttering in RecyclerViews.
+     */
+    suspend fun getNowNextEpg(epgChannelId: String): Pair<com.network24.player.core.database.entity.EpgEntity?, com.network24.player.core.database.entity.EpgEntity?> {
+        // If there's no mapping ID, return empty
+        if (epgChannelId.isBlank()) return Pair(null, null)
+
+        val memKey = "epg_now_next_$epgChannelId"
+
+        // 1. Try Memory Cache (Fastest)
+        MemoryCache.get<Pair<com.network24.player.core.database.entity.EpgEntity?, com.network24.player.core.database.entity.EpgEntity?>>(memKey)?.let {
             return it
         }
-        val baseUrl = server.trim().trimEnd('/') + "/"
-        val response = ApiClient.get(baseUrl).getShortEPG(
-            username = username,
-            password = password,
-            streamId = streamId
-        )
-        if (!response.isSuccessful || response.body() == null) {
-            throw Exception("Unable to load EPG")
-        }
-        val epgData = response.body()!!
-        MemoryCache.put(memoryKey, epgData)
-        return epgData
+
+        // 2. Fetch from Room
+        val now = System.currentTimeMillis()
+        val nowEntity = db.epgDao().getNowByEpgChannelId(epgChannelId, now)
+        val nextEntity = db.epgDao().getNextByEpgChannelId(epgChannelId, now)
+
+        // 3. Create the Pair directly from Entities
+        val result = Pair(nowEntity, nextEntity)
+
+        // 4. Save to Memory Cache (Using existing CacheTtl.EPG_MS)
+        MemoryCache.put(memKey, result, CacheTtl.EPG_MS)
+
+        return result
     }
+
 }

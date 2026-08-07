@@ -10,41 +10,38 @@ import android.view.View
 import android.widget.Toast
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
+import androidx.lifecycle.lifecycleScope
 import com.google.android.material.internal.NavigationMenuView
 import com.network24.player.R
-import com.network24.player.features.live.activity.FavouriteChannelsActivity
-import com.network24.player.features.live.activity.LiveCategoryActivity
 import com.network24.player.core.base.BaseActivity
-import com.network24.player.core.cache.CacheManager
 import com.network24.player.core.preferences.PreferenceManager
 import com.network24.player.databinding.ActivityDashboardBinding
 import com.network24.player.features.chat.activity.ChatHubActivity
-import com.network24.player.features.login.activity.LoginActivity
+import com.network24.player.features.live.activity.FavouriteChannelsActivity
+import com.network24.player.features.live.activity.LiveCategoryActivity
 import com.network24.player.features.live.repository.LiveRepository
 import com.network24.player.features.live.repository.SyncCallback
+import com.network24.player.features.login.activity.LoginActivity
+import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import java.util.concurrent.TimeUnit
 
 class DashboardActivity : BaseActivity() {
+
     private lateinit var binding: ActivityDashboardBinding
     private lateinit var prefs: PreferenceManager
-
-    // 🔥 1. Repository add kiya data sync karne ke liye
     private lateinit var repository: LiveRepository
 
-    // 🔥 2. Loading dialog variable
     private var loadingDialog: AlertDialog? = null
 
     private val handler = Handler(Looper.getMainLooper())
     private val clockRunnable = object : Runnable {
         override fun run() {
             val now = Date()
-            binding.txtClock.text =
-                SimpleDateFormat("hh:mm a", Locale.getDefault()).format(now)
-            binding.txtDate.text =
-                SimpleDateFormat("dd MMM yyyy", Locale.getDefault()).format(now)
+            binding.txtClock.text = SimpleDateFormat("hh:mm a", Locale.getDefault()).format(now)
+            binding.txtDate.text = SimpleDateFormat("dd MMM yyyy", Locale.getDefault()).format(now)
             handler.postDelayed(this, 1000)
         }
     }
@@ -53,21 +50,22 @@ class DashboardActivity : BaseActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityDashboardBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        prefs = PreferenceManager(this)
 
-        // 🔥 3. Repository initialize kiya
-        repository = LiveRepository(CacheManager(this))
+        prefs = PreferenceManager(this)
+        repository = LiveRepository(this)
+
+        // If no login data, go to login (prevents weird sync calls)
+        if (!hasCredentials()) {
+            startActivity(Intent(this, LoginActivity::class.java))
+            finishAffinity()
+            return
+        }
 
         loadDashboard()
 
-        binding.cardLiveTv.post {
-            binding.cardLiveTv.requestFocus()
-        }
+        binding.cardLiveTv.post { binding.cardLiveTv.requestFocus() }
 
-        // ===== Right drawer menu wiring (3 dots) =====
-        binding.btnMore.setOnClickListener {
-            openRightDrawer(binding.drawerLayout)
-        }
+        binding.btnMore.setOnClickListener { openRightDrawer(binding.drawerLayout) }
 
         setupOptionalRightDrawerMenu(
             drawerLayout = binding.drawerLayout,
@@ -78,18 +76,32 @@ class DashboardActivity : BaseActivity() {
                     startActivity(Intent(this, DashboardActivity::class.java))
                     true
                 }
+
                 R.id.action_refresh_all -> {
-                    // 🔥 Refresh button click hone par data dubara sync karwa do
                     syncInitialData(forceRefresh = true)
                     true
                 }
+
                 R.id.action_refresh_guide -> {
-                    Toast.makeText(this, "Refreshing TV Guide...", Toast.LENGTH_SHORT).show()
+                    showLoader()
+                    lifecycleScope.launch {
+                        val result = com.network24.player.core.sync.SyncManager(this@DashboardActivity)
+                            .syncFullEpg(force = true)
+
+                        hideLoader()
+
+                        when (result) {
+                            is com.network24.player.core.sync.SyncResult.Success ->
+                                Toast.makeText(this@DashboardActivity, "TV Guide Updated", Toast.LENGTH_SHORT).show()
+                            is com.network24.player.core.sync.SyncResult.Error ->
+                                Toast.makeText(this@DashboardActivity, result.message, Toast.LENGTH_LONG).show()
+                        }
+                    }
                     true
                 }
-                R.id.action_settings -> {
-                    true
-                }
+
+                R.id.action_settings -> true
+
                 R.id.action_logout -> {
                     prefs.clear()
                     startActivity(Intent(this, LoginActivity::class.java))
@@ -100,7 +112,6 @@ class DashboardActivity : BaseActivity() {
             }
         }
 
-        // Focus first item when the right drawer opens (DPAD friendly)
         binding.drawerLayout.addDrawerListener(object : DrawerLayout.SimpleDrawerListener() {
             override fun onDrawerOpened(drawerView: View) {
                 if (drawerView.id == binding.rightNav.id) {
@@ -123,21 +134,26 @@ class DashboardActivity : BaseActivity() {
         setClickListeners()
         handler.post(clockRunnable)
 
-        // 🔥 4. App khulte hi background mein data sync karna shuru kar do
+        // Auto sync on start (respects 24h unless first run)
         syncInitialData(forceRefresh = false)
     }
 
-    // ============================================
-    // 🔥 LOADER DIALOG FUNCTIONS
-    // ============================================
+    private fun hasCredentials(): Boolean {
+        return prefs.getServer().isNotBlank() &&
+                prefs.getUsername().isNotBlank() &&
+                prefs.getPassword().isNotBlank()
+    }
+
+    // ----------------------------
+    // Loader dialog
+    // ----------------------------
     private fun showLoader() {
         if (loadingDialog == null) {
             val view = LayoutInflater.from(this).inflate(R.layout.dialog_loading, null)
             val builder = AlertDialog.Builder(this)
             builder.setView(view)
-            builder.setCancelable(false) // User click karke band nahi kar payega
+            builder.setCancelable(false)
             loadingDialog = builder.create()
-            // Dialog background transparent karna zaroori hai agar custom corners chahiye toh
             loadingDialog?.window?.setBackgroundDrawableResource(android.R.color.transparent)
         }
         if (!isFinishing && loadingDialog?.isShowing == false) {
@@ -151,24 +167,25 @@ class DashboardActivity : BaseActivity() {
         }
     }
 
-    // ============================================
-    // 🔥 DATA SYNC FUNCTION (24 HOURS LOGIC K SATH)
-    // ============================================
+    // ----------------------------
+    // Sync with 24h policy
+    // ----------------------------
     private fun syncInitialData(forceRefresh: Boolean = false) {
+        if (!hasCredentials()) return
+
         val lastSyncTime = prefs.getLastSyncTime()
         val currentTime = System.currentTimeMillis()
-        val twentyFourHoursInMillis = 24 * 60 * 60 * 1000L // 24 hours in milliseconds
+        val twentyFourHoursInMillis = 24 * 60 * 60 * 1000L
 
-        // Agar forceRefresh nahi hai (yani automatic call hai) aur 24 ghante nahi hue hain, toh return kar jao
-        if (!forceRefresh && (currentTime - lastSyncTime < twentyFourHoursInMillis)) {
-            // Already synced in last 24 hours, so don't show loader or download again.
+        val isFirstSync = lastSyncTime <= 0L
+
+        // If not forced and not first sync and within 24h -> skip
+        if (!forceRefresh && !isFirstSync && (currentTime - lastSyncTime < twentyFourHoursInMillis)) {
             return
         }
 
-        // 1. Screen par "Downloading..." ka loader show karo
         showLoader()
 
-        // 2. Repository ko call karo data laane ke liye
         repository.syncAllData(
             server = prefs.getServer(),
             username = prefs.getUsername(),
@@ -176,16 +193,21 @@ class DashboardActivity : BaseActivity() {
             callback = object : SyncCallback {
                 override fun onSuccess() {
                     hideLoader()
-
-                    // 🔥 Data download success hone par current time save kar lo
                     prefs.setLastSyncTime(System.currentTimeMillis())
-
-                    Toast.makeText(this@DashboardActivity, "Channels Updated Successfully!", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(
+                        this@DashboardActivity,
+                        "Channels Updated Successfully!",
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
 
                 override fun onError(message: String) {
                     hideLoader()
-                    Toast.makeText(this@DashboardActivity, "Failed to update: $message", Toast.LENGTH_LONG).show()
+                    Toast.makeText(
+                        this@DashboardActivity,
+                        "Failed to update: $message",
+                        Toast.LENGTH_LONG
+                    ).show()
                 }
             }
         )
@@ -201,13 +223,9 @@ class DashboardActivity : BaseActivity() {
         if (expiry > 0) {
             val expiryDate = Date(expiry * 1000)
             binding.txtExpiry.text = SimpleDateFormat("dd MMM yyyy", Locale.getDefault()).format(expiryDate)
-            val remainingDays = TimeUnit.MILLISECONDS.toDays(expiryDate.time - System.currentTimeMillis())
 
-            if (remainingDays > 0) {
-                binding.txtRemaining.text = "$remainingDays Days"
-            } else {
-                binding.txtRemaining.text = "Expired"
-            }
+            val remainingDays = TimeUnit.MILLISECONDS.toDays(expiryDate.time - System.currentTimeMillis())
+            binding.txtRemaining.text = if (remainingDays > 0) "$remainingDays Days" else "Expired"
             binding.btnRenew.visibility = if (remainingDays <= 15) View.VISIBLE else View.GONE
         } else {
             binding.txtExpiry.text = "--"
@@ -240,7 +258,7 @@ class DashboardActivity : BaseActivity() {
     override fun onDestroy() {
         super.onDestroy()
         handler.removeCallbacks(clockRunnable)
-        hideLoader() // Activity destroy hone par loader band karna zaroori hai (Memory leak se bachne ke liye)
+        hideLoader()
     }
 
     override fun onBackPressed() {
