@@ -42,20 +42,21 @@ public final class CategoryDao_Impl implements CategoryDao {
       @Override
       @NonNull
       protected String createQuery() {
-        return "INSERT OR REPLACE INTO `categories` (`categoryId`,`name`,`parentId`,`type`) VALUES (?,?,?,?)";
+        return "INSERT OR REPLACE INTO `categories` (`categoryId`,`position`,`name`,`parentId`,`type`) VALUES (?,?,?,?,?)";
       }
 
       @Override
       protected void bind(@NonNull final SupportSQLiteStatement statement,
           @NonNull final CategoryEntity entity) {
         statement.bindString(1, entity.getCategoryId());
-        statement.bindString(2, entity.getName());
+        statement.bindLong(2, entity.getPosition());
+        statement.bindString(3, entity.getName());
         if (entity.getParentId() == null) {
-          statement.bindNull(3);
+          statement.bindNull(4);
         } else {
-          statement.bindLong(3, entity.getParentId());
+          statement.bindLong(4, entity.getParentId());
         }
-        statement.bindString(4, entity.getType());
+        statement.bindString(5, entity.getType());
       }
     };
     this.__preparedStmtOfClearByType = new SharedSQLiteStatement(__db) {
@@ -115,7 +116,7 @@ public final class CategoryDao_Impl implements CategoryDao {
   @Override
   public Object getByType(final String type,
       final Continuation<? super List<CategoryEntity>> $completion) {
-    final String _sql = "SELECT * FROM categories WHERE type = ? ORDER BY name ASC";
+    final String _sql = "SELECT * FROM categories WHERE type = ? ORDER BY position ASC";
     final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 1);
     int _argIndex = 1;
     _statement.bindString(_argIndex, type);
@@ -127,6 +128,7 @@ public final class CategoryDao_Impl implements CategoryDao {
         final Cursor _cursor = DBUtil.query(__db, _statement, false, null);
         try {
           final int _cursorIndexOfCategoryId = CursorUtil.getColumnIndexOrThrow(_cursor, "categoryId");
+          final int _cursorIndexOfPosition = CursorUtil.getColumnIndexOrThrow(_cursor, "position");
           final int _cursorIndexOfName = CursorUtil.getColumnIndexOrThrow(_cursor, "name");
           final int _cursorIndexOfParentId = CursorUtil.getColumnIndexOrThrow(_cursor, "parentId");
           final int _cursorIndexOfType = CursorUtil.getColumnIndexOrThrow(_cursor, "type");
@@ -135,6 +137,8 @@ public final class CategoryDao_Impl implements CategoryDao {
             final CategoryEntity _item;
             final String _tmpCategoryId;
             _tmpCategoryId = _cursor.getString(_cursorIndexOfCategoryId);
+            final int _tmpPosition;
+            _tmpPosition = _cursor.getInt(_cursorIndexOfPosition);
             final String _tmpName;
             _tmpName = _cursor.getString(_cursorIndexOfName);
             final Integer _tmpParentId;
@@ -145,7 +149,7 @@ public final class CategoryDao_Impl implements CategoryDao {
             }
             final String _tmpType;
             _tmpType = _cursor.getString(_cursorIndexOfType);
-            _item = new CategoryEntity(_tmpCategoryId,_tmpName,_tmpParentId,_tmpType);
+            _item = new CategoryEntity(_tmpCategoryId,_tmpPosition,_tmpName,_tmpParentId,_tmpType);
             _result.add(_item);
           }
           return _result;

@@ -83,18 +83,24 @@ class DashboardActivity : BaseActivity() {
                 }
 
                 R.id.action_refresh_guide -> {
-                    showLoader()
+                    showLoader("Updating TV Guide… This can take a minute.")
                     lifecycleScope.launch {
                         val result = com.network24.player.core.sync.SyncManager(this@DashboardActivity)
                             .syncFullEpg(force = true)
-
                         hideLoader()
-
                         when (result) {
-                            is com.network24.player.core.sync.SyncResult.Success ->
+                            is com.network24.player.core.sync.SyncResult.Success -> {
                                 Toast.makeText(this@DashboardActivity, "TV Guide Updated", Toast.LENGTH_SHORT).show()
-                            is com.network24.player.core.sync.SyncResult.Error ->
+                                sendBroadcast(Intent("ACTION_EPG_UPDATED"))
+                            }
+
+                            is com.network24.player.core.sync.SyncResult.Error -> {
                                 Toast.makeText(this@DashboardActivity, result.message, Toast.LENGTH_LONG).show()
+                            }
+
+                            else -> {
+                                Toast.makeText(this@DashboardActivity, "TV Guide sync finished.", Toast.LENGTH_SHORT).show()
+                            }
                         }
                     }
                     true
@@ -147,7 +153,7 @@ class DashboardActivity : BaseActivity() {
     // ----------------------------
     // Loader dialog
     // ----------------------------
-    private fun showLoader() {
+    private fun showLoader(message: String = "Loading...") {
         if (loadingDialog == null) {
             val view = LayoutInflater.from(this).inflate(R.layout.dialog_loading, null)
             val builder = AlertDialog.Builder(this)
@@ -156,9 +162,13 @@ class DashboardActivity : BaseActivity() {
             loadingDialog = builder.create()
             loadingDialog?.window?.setBackgroundDrawableResource(android.R.color.transparent)
         }
+
         if (!isFinishing && loadingDialog?.isShowing == false) {
             loadingDialog?.show()
         }
+
+        // ✅ update message
+        loadingDialog?.findViewById<android.widget.TextView>(R.id.txtLoadingMessage)?.text = message
     }
 
     private fun hideLoader() {

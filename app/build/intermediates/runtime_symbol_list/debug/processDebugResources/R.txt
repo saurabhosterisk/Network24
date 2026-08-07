@@ -5329,6 +5329,7 @@ int id txtExpiry 0x7f0a02b3
 int id txtFavouriteCount 0x7f0a02b4
 int id txtFavouriteTitle 0x7f0a02b5
 int id txtLoading 0x7f0a02b6
+int id txtLoadingMessage 0x7f0a02e4
 int id txtName 0x7f0a02b7
 int id txtNextTime 0x7f0a02b8
 int id txtNextTitle 0x7f0a02b9

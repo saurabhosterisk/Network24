@@ -47,7 +47,10 @@ class SyncManager(private val context: Context) {
             }
 
             val categories = response.body().orEmpty()
-            val entities = categories.map { it.toCategoryEntity() }
+
+            val entities = categories.mapIndexed { index, api ->
+                api.toCategoryEntity(position = index)
+            }
 
             db.categoryDao().clearByType(CategoryType.LIVE)
             db.categoryDao().upsertAll(entities)

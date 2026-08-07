@@ -12,9 +12,10 @@ import com.network24.player.features.live.models.LiveChannel
 // Feature Models -> Room Entities
 // ----------------------------------------------------
 
-fun LiveCategory.toCategoryEntity(): CategoryEntity =
+fun LiveCategory.toCategoryEntity(position: Int): CategoryEntity =
     CategoryEntity(
         categoryId = category_id,
+        position = position,
         name = category_name,
         parentId = parent_id,
         type = CategoryType.LIVE

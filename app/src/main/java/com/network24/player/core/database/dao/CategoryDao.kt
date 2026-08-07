@@ -8,7 +8,7 @@ import com.network24.player.core.database.entity.CategoryEntity
 
 @Dao
 interface CategoryDao {
-    @Query("SELECT * FROM categories WHERE type = :type ORDER BY name ASC")
+    @Query("SELECT * FROM categories WHERE type = :type ORDER BY position ASC")
     suspend fun getByType(type: String): List<CategoryEntity>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)

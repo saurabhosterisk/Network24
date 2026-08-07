@@ -5330,6 +5330,7 @@ id txtExpiry
 id txtFavouriteCount
 id txtFavouriteTitle
 id txtLoading
+id txtLoadingMessage
 id txtName
 id txtNextTime
 id txtNextTitle
