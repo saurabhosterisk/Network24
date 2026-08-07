@@ -14,8 +14,11 @@ import androidx.lifecycle.lifecycleScope
 import androidx.media3.common.PlaybackException
 import androidx.media3.common.Player
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.firebase.firestore.FirebaseFirestore
 import com.network24.player.R
 import com.network24.player.core.base.BaseActivity
+import com.network24.player.core.database.DatabaseProvider
+import com.network24.player.core.database.repository.FavoritesRepository
 import com.network24.player.core.preferences.PreferenceManager
 import com.network24.player.databinding.ActivityFavouriteChannelsBinding
 import com.network24.player.features.dashboard.activity.DashboardActivity
@@ -36,10 +39,8 @@ class FavouriteChannelsActivity : BaseActivity() {
     private lateinit var binding: ActivityFavouriteChannelsBinding
     private lateinit var repository: LiveRepository
     private lateinit var prefs: PreferenceManager
-
     private var isGoingToFullscreen = false
     private lateinit var adapter: ChannelAdapter
-
     private var loadingDialog: AlertDialog? = null
 
     private var retryCount = 0
@@ -54,6 +55,11 @@ class FavouriteChannelsActivity : BaseActivity() {
     private val allChannels = mutableListOf<LiveChannel>()
     private val channelList = mutableListOf<LiveChannel>()
 
+    private lateinit var favRepo: FavoritesRepository
+
+    // ✅ Fix: cache favourites ids in memory (no suspend calls in TextWatcher)
+    private var currentFavIds: Set<String> = emptySet()
+
     private val playerListener = object : Player.Listener {
         override fun onPlaybackStateChanged(playbackState: Int) {
             binding.progressLoading.visibility =
@@ -62,7 +68,6 @@ class FavouriteChannelsActivity : BaseActivity() {
 
         override fun onPlayerError(error: PlaybackException) {
             super.onPlayerError(error)
-
             if (retryCount < MAX_RETRIES) {
                 retryCount++
                 Toast.makeText(
@@ -78,7 +83,11 @@ class FavouriteChannelsActivity : BaseActivity() {
                         val currentChannel = channelList[previewPosition]
                         val streamUrl = buildStreamUrl(currentChannel)
                         binding.progressLoading.visibility = View.VISIBLE
-                        PlayerManager.play(this@FavouriteChannelsActivity, binding.playerView, streamUrl)
+                        PlayerManager.play(
+                            this@FavouriteChannelsActivity,
+                            binding.playerView,
+                            streamUrl
+                        )
                     }
                 }
             } else {
@@ -101,24 +110,38 @@ class FavouriteChannelsActivity : BaseActivity() {
         prefs = PreferenceManager(this)
         repository = LiveRepository(this)
 
+        val db = DatabaseProvider.get(this)
+        favRepo = FavoritesRepository(db.favoritesDao(), FirebaseFirestore.getInstance())
+
         binding.btnBack.setOnClickListener { finish() }
 
         binding.playerView.setShowSubtitleButton(false)
         binding.playerView.subtitleView?.visibility = View.GONE
 
         binding.btnMore.setOnClickListener { openRightDrawer(binding.drawerLayout) }
+
         setupOptionalRightDrawerMenu(binding.drawerLayout, binding.rightNav) { itemId ->
             when (itemId) {
                 R.id.action_home -> {
                     startActivity(Intent(this, DashboardActivity::class.java))
                     true
                 }
+
                 R.id.action_logout -> {
-                    prefs.clear()
-                    startActivity(Intent(this, LoginActivity::class.java))
-                    finishAffinity()
+                    lifecycleScope.launch {
+                        try {
+                            DatabaseProvider.get(this@FavouriteChannelsActivity)
+                                .favoritesDao()
+                                .clearAll()
+                        } catch (_: Exception) {
+                        }
+                        prefs.clear()
+                        startActivity(Intent(this@FavouriteChannelsActivity, LoginActivity::class.java))
+                        finishAffinity()
+                    }
                     true
                 }
+
                 else -> false
             }
         }
@@ -132,7 +155,15 @@ class FavouriteChannelsActivity : BaseActivity() {
         setupRecycler()
         setupSearch()
 
-        // ✅ NEW: ensure DB has data before favourites filtering
+        // ✅ Auto-update favourites from Room
+        lifecycleScope.launch {
+            db.favoritesDao().observeByType("LIVE_CHANNEL").collect { favs ->
+                val favIds = favs.map { it.itemId }.toSet()
+                currentFavIds = favIds
+                refreshFavouriteListFromDb(favIds)
+            }
+        }
+
         ensureInitialSyncThenLoadFavourites()
     }
 
@@ -160,39 +191,98 @@ class FavouriteChannelsActivity : BaseActivity() {
     }
 
     // ----------------------------
-    // FAV STORAGE
+    // Auto First Sync + load channels into memory
     // ----------------------------
-    private fun getSavedFavouriteChannels(): Set<String> {
-        val sharedPreferences = getSharedPreferences("AppPreferences", MODE_PRIVATE)
-        return sharedPreferences.getStringSet("fav_channels", emptySet()) ?: emptySet()
+    private fun ensureInitialSyncThenLoadFavourites() {
+        lifecycleScope.launch {
+            try {
+                val allDbChannels = repository.getChannels(
+                    server = prefs.getServer(),
+                    username = prefs.getUsername(),
+                    password = prefs.getPassword(),
+                    categoryId = "",
+                    forceRefresh = false
+                )
+
+                if (allDbChannels.isNotEmpty()) {
+                    allChannels.clear()
+                    allChannels.addAll(allDbChannels)
+                    // UI will show via Flow collector refreshFavouriteListFromDb()
+                    return@launch
+                }
+
+                showLoader()
+                repository.syncAllData(
+                    server = prefs.getServer(),
+                    username = prefs.getUsername(),
+                    password = prefs.getPassword(),
+                    callback = object : SyncCallback {
+                        override fun onSuccess() {
+                            hideLoader()
+                            prefs.setLastSyncTime(System.currentTimeMillis())
+                            loadAllChannelsToMemory(forceRefresh = true)
+                        }
+
+                        override fun onError(message: String) {
+                            hideLoader()
+                            Toast.makeText(
+                                this@FavouriteChannelsActivity,
+                                "Initial sync failed: $message",
+                                Toast.LENGTH_LONG
+                            ).show()
+                            loadAllChannelsToMemory(forceRefresh = false)
+                        }
+                    }
+                )
+            } catch (e: Exception) {
+                Toast.makeText(
+                    this@FavouriteChannelsActivity,
+                    e.message ?: "Initial load failed",
+                    Toast.LENGTH_LONG
+                ).show()
+            }
+        }
     }
 
-    private fun saveFavouriteChannels(favIds: Set<String>) {
-        val sharedPreferences = getSharedPreferences("AppPreferences", MODE_PRIVATE)
-        sharedPreferences.edit().putStringSet("fav_channels", favIds).apply()
+    private fun loadAllChannelsToMemory(forceRefresh: Boolean) {
+        lifecycleScope.launch {
+            try {
+                val allChannelsFromRepo = repository.getChannels(
+                    server = prefs.getServer(),
+                    username = prefs.getUsername(),
+                    password = prefs.getPassword(),
+                    categoryId = "",
+                    forceRefresh = forceRefresh
+                )
+                allChannels.clear()
+                allChannels.addAll(allChannelsFromRepo)
+                // UI refresh happens when Flow emits currentFavIds
+                refreshFavouriteListFromDb(currentFavIds)
+            } catch (e: Exception) {
+                Toast.makeText(this@FavouriteChannelsActivity, e.message, Toast.LENGTH_LONG).show()
+            }
+        }
     }
 
-    // Long press remove logic
-    private fun removeFromFavourites(channel: LiveChannel) {
-        val streamId = channel.stream_id?.toString() ?: return
-        val favs = getSavedFavouriteChannels().toMutableSet()
-
-        if (!favs.contains(streamId)) {
-            Toast.makeText(this, "Already removed", Toast.LENGTH_SHORT).show()
+    // ----------------------------
+    // favIds + allChannels -> favourite list
+    // ----------------------------
+    private fun refreshFavouriteListFromDb(favIds: Set<String>) {
+        if (allChannels.isEmpty()) {
+            adapter.updateData(emptyList())
+            adapter.updateFavourites(favIds)
             return
         }
 
-        favs.remove(streamId)
-        saveFavouriteChannels(favs)
+        val favChannels = allChannels.filter { channel ->
+            favIds.contains(channel.stream_id?.toString().orEmpty())
+        }
 
-        val removeIndex = channelList.indexOfFirst { it.stream_id?.toString() == streamId }
-        allChannels.removeAll { it.stream_id?.toString() == streamId }
-        if (removeIndex != -1) channelList.removeAt(removeIndex)
+        channelList.clear()
+        channelList.addAll(favChannels)
 
         adapter.updateData(channelList)
-        adapter.updateFavourites(favs)
-
-        Toast.makeText(this, "${channel.name} removed from Favourites", Toast.LENGTH_SHORT).show()
+        adapter.updateFavourites(favIds)
 
         if (channelList.isEmpty()) {
             previewPosition = -1
@@ -207,132 +297,33 @@ class FavouriteChannelsActivity : BaseActivity() {
             return
         }
 
-        if (previewPosition > removeIndex) previewPosition -= 1
-
-        if (previewPosition == removeIndex || previewPosition !in channelList.indices) {
-            previewPosition = previewPosition.coerceIn(0, channelList.lastIndex)
-            adapter.setPlaying(previewPosition)
-            showPreview(channelList[previewPosition])
-            loadProgramGuide(channelList[previewPosition])
-        } else {
-            adapter.setPlaying(previewPosition)
-        }
+        if (previewPosition !in channelList.indices) previewPosition = 0
+        adapter.setPlaying(previewPosition)
+        showPreview(channelList[previewPosition])
+        loadProgramGuide(channelList[previewPosition])
     }
 
     // ----------------------------
-    // Auto First Sync + Load favourites
+    // Remove from favourites (Room + Firebase)
     // ----------------------------
-    private fun ensureInitialSyncThenLoadFavourites() {
-        lifecycleScope.launch {
-            try {
-                // Try loading ALL channels from DB (categoryId="")
-                val allDbChannels = repository.getChannels(
-                    server = prefs.getServer(),
-                    username = prefs.getUsername(),
-                    password = prefs.getPassword(),
-                    categoryId = "",
-                    forceRefresh = false
-                )
-
-                if (allDbChannels.isNotEmpty()) {
-                    applyFavouriteFilterAndShow(allDbChannels)
-                    return@launch
-                }
-
-                // If DB empty -> sync once
-                showLoader()
-                repository.syncAllData(
-                    server = prefs.getServer(),
-                    username = prefs.getUsername(),
-                    password = prefs.getPassword(),
-                    callback = object : SyncCallback {
-                        override fun onSuccess() {
-                            hideLoader()
-                            prefs.setLastSyncTime(System.currentTimeMillis())
-                            loadFavouriteChannels(forceRefresh = true)
-                        }
-
-                        override fun onError(message: String) {
-                            hideLoader()
-                            Toast.makeText(
-                                this@FavouriteChannelsActivity,
-                                "Initial sync failed: $message",
-                                Toast.LENGTH_LONG
-                            ).show()
-                            // fallback attempt
-                            loadFavouriteChannels(forceRefresh = false)
-                        }
-                    }
-                )
-            } catch (e: Exception) {
-                Toast.makeText(
-                    this@FavouriteChannelsActivity,
-                    e.message ?: "Initial load failed",
-                    Toast.LENGTH_LONG
-                ).show()
-            }
-        }
-    }
-
-    // ----------------------------
-    // LOAD & FILTER
-    // ----------------------------
-    private fun loadFavouriteChannels(forceRefresh: Boolean = false) {
-        binding.edtSearch.text?.clear()
-        binding.edtSearch.clearFocus()
+    private fun removeFromFavourites(channel: LiveChannel) {
+        val streamId = channel.stream_id?.toString() ?: return
+        val userId = prefs.getUsername()
 
         lifecycleScope.launch {
-            try {
-                val allChannelsFromRepo = repository.getChannels(
-                    server = prefs.getServer(),
-                    username = prefs.getUsername(),
-                    password = prefs.getPassword(),
-                    categoryId = "",
-                    forceRefresh = forceRefresh
-                )
-
-                applyFavouriteFilterAndShow(allChannelsFromRepo)
-            } catch (e: Exception) {
-                Toast.makeText(this@FavouriteChannelsActivity, e.message, Toast.LENGTH_LONG).show()
-            }
+            favRepo.removeFavorite(userId, "LIVE_CHANNEL", streamId)
+            Toast.makeText(
+                this@FavouriteChannelsActivity,
+                "${channel.name} removed from Favourites",
+                Toast.LENGTH_SHORT
+            ).show()
+            // UI auto refresh via Flow
         }
-    }
-
-    private fun applyFavouriteFilterAndShow(allChannelsFromRepo: List<LiveChannel>) {
-        val favIds = getSavedFavouriteChannels()
-
-        val favChannels = allChannelsFromRepo.filter { channel ->
-            favIds.contains(channel.stream_id?.toString().orEmpty())
-        }
-
-        allChannels.clear()
-        allChannels.addAll(favChannels)
-
-        channelList.clear()
-        channelList.addAll(favChannels)
-
-        adapter.updateData(channelList)
-        adapter.updateFavourites(favIds)
-
-        if (channelList.isEmpty()) {
-            Toast.makeText(this, "No favourite channels found.", Toast.LENGTH_LONG).show()
-            previewPosition = -1
-            binding.txtNowTitle.text = "No favourite channels"
-            binding.txtOverlayProgram.text = ""
-            binding.txtOverlayChannel.text = ""
-            return
-        }
-
-        previewPosition = 0
-        adapter.setPlaying(0)
-        showPreview(channelList[0])
-        loadProgramGuide(channelList[0])
     }
 
     private fun showPreview(channel: LiveChannel) {
         retryJob?.cancel()
         retryCount = 0
-
         binding.txtPlayerError.visibility = View.GONE
 
         val streamUrl = buildStreamUrl(channel)
@@ -369,7 +360,7 @@ class FavouriteChannelsActivity : BaseActivity() {
 
         adapter = ChannelAdapter(
             channels = mutableListOf(),
-            favouriteIds = getSavedFavouriteChannels(),
+            favouriteIds = emptySet(), // ✅ Flow will update
             onFocused = { _, _ -> },
             onClicked = { channel, position ->
                 if (previewPosition == position) {
@@ -393,14 +384,25 @@ class FavouriteChannelsActivity : BaseActivity() {
     private fun setupSearch() {
         binding.edtSearch.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 val keyword = s.toString()
+
                 val filtered = allChannels.filter {
                     it.name?.contains(keyword, ignoreCase = true) ?: false
                 }
+
+                // ✅ No DB calls here
+                val favIds = currentFavIds
+                val favFiltered = filtered.filter {
+                    favIds.contains(it.stream_id?.toString().orEmpty())
+                }
+
                 channelList.clear()
-                channelList.addAll(filtered)
+                channelList.addAll(favFiltered)
+
                 adapter.updateData(channelList)
+                adapter.updateFavourites(favIds)
 
                 if (previewPosition !in channelList.indices) {
                     adapter.setPlaying(-1)
@@ -408,12 +410,14 @@ class FavouriteChannelsActivity : BaseActivity() {
                     adapter.setPlaying(previewPosition)
                 }
             }
+
             override fun afterTextChanged(s: Editable?) {}
         })
     }
 
     private fun loadProgramGuide(channel: LiveChannel) {
         val streamId = channel.stream_id ?: return
+
         lifecycleScope.launch {
             try {
                 val epg = repository.getShortEPG(
@@ -428,10 +432,11 @@ class FavouriteChannelsActivity : BaseActivity() {
                     binding.txtOverlayProgram.text = ""
                     return@launch
                 }
+
                 val now = list[0]
                 binding.txtNowTitle.text = decodeBase64(now.title)
                 binding.txtOverlayProgram.text = binding.txtNowTitle.text
-            } catch (e: Exception) {
+            } catch (_: Exception) {
                 binding.txtNowTitle.text = "EPG unavailable"
             }
         }

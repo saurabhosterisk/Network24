@@ -6,7 +6,6 @@ import android.content.pm.PackageManager
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
-import android.util.Base64
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.Toast
@@ -17,8 +16,11 @@ import androidx.media3.common.PlaybackException
 import androidx.media3.common.Player
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.internal.NavigationMenuView
+import com.google.firebase.firestore.FirebaseFirestore
 import com.network24.player.R
 import com.network24.player.core.base.BaseActivity
+import com.network24.player.core.database.DatabaseProvider
+import com.network24.player.core.database.repository.FavoritesRepository
 import com.network24.player.core.preferences.PreferenceManager
 import com.network24.player.databinding.ActivityChannelListBinding
 import com.network24.player.features.dashboard.activity.DashboardActivity
@@ -63,6 +65,8 @@ class ChannelListActivity : BaseActivity() {
 
     private lateinit var categoryId: String
 
+    private lateinit var favRepo: FavoritesRepository
+
     private val playerListener = object : Player.Listener {
         override fun onPlaybackStateChanged(playbackState: Int) {
             binding.progressLoading.visibility =
@@ -102,6 +106,9 @@ class ChannelListActivity : BaseActivity() {
         binding = ActivityChannelListBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        val db = DatabaseProvider.get(this)
+        favRepo = FavoritesRepository(db.favoritesDao(), FirebaseFirestore.getInstance())
+
         prefs = PreferenceManager(this)
         repository = LiveRepository(this)
 
@@ -124,34 +131,56 @@ class ChannelListActivity : BaseActivity() {
                     startActivity(Intent(this, DashboardActivity::class.java))
                     true
                 }
+
                 R.id.action_refresh_all -> {
                     forceRefreshData()
                     true
                 }
+
                 R.id.action_refresh_guide -> {
                     showLoader()
                     lifecycleScope.launch {
-                        val result = com.network24.player.core.sync.SyncManager(this@ChannelListActivity)
-                            .syncFullEpg(force = true)
+                        val result =
+                            com.network24.player.core.sync.SyncManager(this@ChannelListActivity)
+                                .syncFullEpg(force = true)
 
                         hideLoader()
 
                         when (result) {
                             is com.network24.player.core.sync.SyncResult.Success ->
-                                Toast.makeText(this@ChannelListActivity, "TV Guide Updated", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(
+                                    this@ChannelListActivity,
+                                    "TV Guide Updated",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+
                             is com.network24.player.core.sync.SyncResult.Error ->
-                                Toast.makeText(this@ChannelListActivity, result.message, Toast.LENGTH_LONG).show()
+                                Toast.makeText(
+                                    this@ChannelListActivity,
+                                    result.message,
+                                    Toast.LENGTH_LONG
+                                ).show()
                         }
                     }
                     true
                 }
+
                 R.id.action_settings -> true
+
                 R.id.action_logout -> {
-                    prefs.clear()
-                    startActivity(Intent(this, LoginActivity::class.java))
-                    finishAffinity()
+                    // Multi-user safety: local favourites clear
+                    lifecycleScope.launch {
+                        try {
+                            DatabaseProvider.get(this@ChannelListActivity).favoritesDao().clearAll()
+                        } catch (_: Exception) {
+                        }
+                        prefs.clear()
+                        startActivity(Intent(this@ChannelListActivity, LoginActivity::class.java))
+                        finishAffinity()
+                    }
                     true
                 }
+
                 else -> false
             }
         }
@@ -184,6 +213,14 @@ class ChannelListActivity : BaseActivity() {
 
         setupRecycler()
         setupSearch()
+
+        // ✅ Auto-update favourites from Room (no SharedPreferences)
+        lifecycleScope.launch {
+            db.favoritesDao().observeByType("LIVE_CHANNEL").collect { favs ->
+                val favIds = favs.map { it.itemId }.toSet()
+                adapter.updateFavourites(favIds)
+            }
+        }
 
         // ✅ NEW: Auto initial sync if DB empty
         ensureInitialSyncThenLoad()
@@ -252,7 +289,7 @@ class ChannelListActivity : BaseActivity() {
         channelList.addAll(channels)
 
         adapter.updateData(channelList)
-        adapter.updateFavourites(getSavedFavouriteChannels())
+        // favourites are updated via Flow collector
 
         if (channelList.isEmpty()) return
 
@@ -344,7 +381,7 @@ class ChannelListActivity : BaseActivity() {
 
         adapter = ChannelAdapter(
             channels = mutableListOf(),
-            favouriteIds = getSavedFavouriteChannels(),
+            favouriteIds = emptySet(), // ✅ start empty, Flow will update
             onFocused = { _, _ -> },
             onClicked = { channel, position ->
                 if (previewPosition == position) {
@@ -368,10 +405,18 @@ class ChannelListActivity : BaseActivity() {
     private fun setupSearch() {
         binding.edtSearch.addTextChangedListener(
             object : TextWatcher {
-                override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+                override fun beforeTextChanged(
+                    s: CharSequence?,
+                    start: Int,
+                    count: Int,
+                    after: Int
+                ) {
+                }
+
                 override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                     filterChannels(s.toString())
                 }
+
                 override fun afterTextChanged(s: Editable?) {}
             }
         )
@@ -386,7 +431,7 @@ class ChannelListActivity : BaseActivity() {
         channelList.addAll(filtered)
 
         adapter.updateData(channelList)
-        adapter.updateFavourites(getSavedFavouriteChannels())
+        // favourites are updated via Flow collector
 
         if (previewPosition != -1 && allChannels.isNotEmpty()) {
             val currentlyPlayingChannel = allChannels[previewPosition]
@@ -435,7 +480,6 @@ class ChannelListActivity : BaseActivity() {
         binding.txtNextTime.text = ""
     }
 
-
     private fun openFullscreen(channel: LiveChannel, position: Int) {
         isGoingToFullscreen = true
 
@@ -456,24 +500,21 @@ class ChannelListActivity : BaseActivity() {
         return "$server/live/$username/$password/${channel.stream_id}.m3u8"
     }
 
-
-
     // ==========================================
-    // NAYA EPG LOGIC (PHASE 6: DATABASE SE)
+    // EPG LOGIC (Database)
     // ==========================================
     private fun loadProgramGuide(channel: LiveChannel) {
-        // stream_id ki jagah epg_channel_id se try karenge (Database fetch ke liye)
         val epgId = channel.epg_channel_id ?: channel.stream_id?.toString() ?: return
 
         lifecycleScope.launch {
             try {
-                // Turant Cache/DB se result layega
                 val (nowEpg, nextEpg) = repository.getNowNextEpg(epgId)
 
                 withContext(kotlinx.coroutines.Dispatchers.Main) {
                     if (nowEpg != null) {
                         binding.txtNowTitle.text = nowEpg.title ?: "No Program Info"
-                        binding.txtNowTime.text = "${formatTime(nowEpg.startTimestamp)} - ${formatTime(nowEpg.stopTimestamp)}"
+                        binding.txtNowTime.text =
+                            "${formatTime(nowEpg.startTimestamp)} - ${formatTime(nowEpg.stopTimestamp)}"
                         binding.txtOverlayProgram.text = nowEpg.title ?: ""
                     } else {
                         binding.txtNowTitle.text = "No EPG"
@@ -483,7 +524,8 @@ class ChannelListActivity : BaseActivity() {
 
                     if (nextEpg != null) {
                         binding.txtNextTitle.text = nextEpg.title ?: ""
-                        binding.txtNextTime.text = "${formatTime(nextEpg.startTimestamp)} - ${formatTime(nextEpg.stopTimestamp)}"
+                        binding.txtNextTime.text =
+                            "${formatTime(nextEpg.startTimestamp)} - ${formatTime(nextEpg.stopTimestamp)}"
                     } else {
                         binding.txtNextTitle.text = ""
                         binding.txtNextTime.text = ""
@@ -501,7 +543,6 @@ class ChannelListActivity : BaseActivity() {
         }
     }
 
-    // Time format ke liye naya helper (Jo milliseconds lega)
     private fun formatTime(timeMs: Long?): String {
         if (timeMs == null || timeMs == 0L) return ""
         return try {
@@ -511,7 +552,6 @@ class ChannelListActivity : BaseActivity() {
             ""
         }
     }
-
 
     override fun onPause() {
         super.onPause()
@@ -545,7 +585,7 @@ class ChannelListActivity : BaseActivity() {
             binding.txtOverlayProgram.text = finalError
         }
 
-        adapter.updateFavourites(getSavedFavouriteChannels())
+        // favourites auto-updated via Flow; nothing to call here
     }
 
     override fun onDestroy() {
@@ -557,59 +597,70 @@ class ChannelListActivity : BaseActivity() {
     }
 
     // ----------------------------
-    // Favourites
+    // Favourites (Room + Firebase)
     // ----------------------------
-    private fun getSavedFavouriteChannels(): Set<String> {
-        val sharedPreferences = getSharedPreferences("AppPreferences", MODE_PRIVATE)
-        return sharedPreferences.getStringSet("fav_channels", emptySet()) ?: emptySet()
-    }
-
-    private fun saveFavouriteChannels(favIds: Set<String>) {
-        val sharedPreferences = getSharedPreferences("AppPreferences", MODE_PRIVATE)
-        sharedPreferences.edit().putStringSet("fav_channels", favIds).apply()
-    }
-
     private fun toggleChannelFavourite(channel: LiveChannel) {
         val streamId = channel.stream_id?.toString() ?: return
-        val currentFavs = getSavedFavouriteChannels().toMutableSet()
+        val userId = prefs.getUsername()
 
-        if (currentFavs.contains(streamId)) {
-            currentFavs.remove(streamId)
-            saveFavouriteChannels(currentFavs)
-            Toast.makeText(this, "${channel.name} removed from Favourites", Toast.LENGTH_SHORT).show()
-        } else {
-            currentFavs.add(streamId)
-            saveFavouriteChannels(currentFavs)
-            Toast.makeText(this, "${channel.name} added to Favourites", Toast.LENGTH_SHORT).show()
+        lifecycleScope.launch {
+            val key = "LIVE_CHANNEL:$streamId"
+
+            val isFav = DatabaseProvider.get(this@ChannelListActivity)
+                .favoritesDao()
+                .getAll()
+                .any { it.key == key }
+
+            if (isFav) {
+                favRepo.removeFavorite(userId, "LIVE_CHANNEL", streamId)
+                Toast.makeText(
+                    this@ChannelListActivity,
+                    "${channel.name} removed from Favourites",
+                    Toast.LENGTH_SHORT
+                ).show()
+            } else {
+                favRepo.addFavorite(userId, "LIVE_CHANNEL", streamId)
+                Toast.makeText(
+                    this@ChannelListActivity,
+                    "${channel.name} added to Favourites",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
         }
-
-        adapter.updateFavourites(currentFavs)
     }
 
     private fun confirmToggleFavourite(channel: LiveChannel) {
         val streamId = channel.stream_id?.toString() ?: return
         val name = channel.name ?: "this channel"
-        val currentFavs = getSavedFavouriteChannels()
-        val isFav = currentFavs.contains(streamId)
 
-        val title = if (isFav) "Remove Favourite" else "Add Favourite"
-        val message = if (isFav) {
-            "Do you want to remove \"$name\" from favourites?"
-        } else {
-            "Do you want to add \"$name\" to favourites?"
+        lifecycleScope.launch {
+            val key = "LIVE_CHANNEL:$streamId"
+
+            val isFav = DatabaseProvider.get(this@ChannelListActivity)
+                .favoritesDao()
+                .getAll()
+                .any { it.key == key }
+
+            val title = if (isFav) "Remove Favourite" else "Add Favourite"
+            val message = if (isFav) {
+                "Do you want to remove \"$name\" from favourites?"
+            } else {
+                "Do you want to add \"$name\" to favourites?"
+            }
+            val positiveText = if (isFav) "Remove" else "Add"
+
+            androidx.appcompat.app.AlertDialog.Builder(this@ChannelListActivity)
+                .setTitle(title)
+                .setMessage(message)
+                .setPositiveButton(positiveText) { dialog, _ ->
+                    dialog.dismiss()
+                    toggleChannelFavourite(channel)
+                }
+                .setNegativeButton("Cancel") { dialog, _ ->
+                    dialog.dismiss()
+                }
+                .show()
         }
-        val positiveText = if (isFav) "Remove" else "Add"
-
-        androidx.appcompat.app.AlertDialog.Builder(this)
-            .setTitle(title)
-            .setMessage(message)
-            .setPositiveButton(positiveText) { dialog, _ ->
-                dialog.dismiss()
-                toggleChannelFavourite(channel)
-            }
-            .setNegativeButton("Cancel") { dialog, _ ->
-                dialog.dismiss()
-            }
-            .show()
     }
+    
 }

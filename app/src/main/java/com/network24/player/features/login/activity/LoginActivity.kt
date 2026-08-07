@@ -13,6 +13,10 @@ import com.network24.player.features.login.repository.LoginRepository
 import kotlinx.coroutines.launch
 import java.io.IOException
 
+import com.google.firebase.firestore.FirebaseFirestore
+import com.network24.player.core.database.DatabaseProvider
+import com.network24.player.core.database.repository.FavoritesRepository
+
 class LoginActivity : BaseActivity() {
 
     private lateinit var binding: ActivityLoginBinding
@@ -103,7 +107,7 @@ class LoginActivity : BaseActivity() {
 
                     val userInfo = response.body()!!.user_info!!
 
-// Always save user session
+                    // Always save user session
                     prefs.saveUserInfo(
                         username = userInfo.username ?: username,
                         status = userInfo.status ?: "Unknown",
@@ -119,6 +123,16 @@ class LoginActivity : BaseActivity() {
                         password,
                         binding.chkRemember.isChecked
                     )
+
+                    try {
+                        val userId = userInfo.username ?: username // safest
+                        val db = DatabaseProvider.get(this@LoginActivity)
+                        val favRepo = FavoritesRepository(db.favoritesDao(), FirebaseFirestore.getInstance())
+
+                        favRepo.syncFromCloud(userId)
+                    } catch (_: Exception) {
+                        // ignore: login ko block nahi karna
+                    }
 
                     startActivity(
                         Intent(

@@ -12,6 +12,7 @@ import androidx.room.util.CursorUtil;
 import androidx.room.util.DBUtil;
 import androidx.sqlite.db.SupportSQLiteStatement;
 import com.network24.player.core.database.entity.FavoriteEntity;
+import java.lang.Boolean;
 import java.lang.Class;
 import java.lang.Exception;
 import java.lang.Object;
@@ -25,6 +26,7 @@ import java.util.concurrent.Callable;
 import javax.annotation.processing.Generated;
 import kotlin.Unit;
 import kotlin.coroutines.Continuation;
+import kotlinx.coroutines.flow.Flow;
 
 @Generated("androidx.room.RoomProcessor")
 @SuppressWarnings({"unchecked", "deprecation"})
@@ -34,6 +36,8 @@ public final class FavoritesDao_Impl implements FavoritesDao {
   private final EntityInsertionAdapter<FavoriteEntity> __insertionAdapterOfFavoriteEntity;
 
   private final SharedSQLiteStatement __preparedStmtOfDeleteByKey;
+
+  private final SharedSQLiteStatement __preparedStmtOfDeleteByItem;
 
   private final SharedSQLiteStatement __preparedStmtOfClearAll;
 
@@ -60,6 +64,14 @@ public final class FavoritesDao_Impl implements FavoritesDao {
       @NonNull
       public String createQuery() {
         final String _query = "DELETE FROM favorites WHERE key = ?";
+        return _query;
+      }
+    };
+    this.__preparedStmtOfDeleteByItem = new SharedSQLiteStatement(__db) {
+      @Override
+      @NonNull
+      public String createQuery() {
+        final String _query = "DELETE FROM favorites WHERE itemType = ? AND itemId = ?";
         return _query;
       }
     };
@@ -111,6 +123,34 @@ public final class FavoritesDao_Impl implements FavoritesDao {
           }
         } finally {
           __preparedStmtOfDeleteByKey.release(_stmt);
+        }
+      }
+    }, $completion);
+  }
+
+  @Override
+  public Object deleteByItem(final String type, final String itemId,
+      final Continuation<? super Unit> $completion) {
+    return CoroutinesRoom.execute(__db, true, new Callable<Unit>() {
+      @Override
+      @NonNull
+      public Unit call() throws Exception {
+        final SupportSQLiteStatement _stmt = __preparedStmtOfDeleteByItem.acquire();
+        int _argIndex = 1;
+        _stmt.bindString(_argIndex, type);
+        _argIndex = 2;
+        _stmt.bindString(_argIndex, itemId);
+        try {
+          __db.beginTransaction();
+          try {
+            _stmt.executeUpdateDelete();
+            __db.setTransactionSuccessful();
+            return Unit.INSTANCE;
+          } finally {
+            __db.endTransaction();
+          }
+        } finally {
+          __preparedStmtOfDeleteByItem.release(_stmt);
         }
       }
     }, $completion);
@@ -216,6 +256,125 @@ public final class FavoritesDao_Impl implements FavoritesDao {
         }
       }
     }, $completion);
+  }
+
+  @Override
+  public Flow<List<FavoriteEntity>> observeAll() {
+    final String _sql = "SELECT * FROM favorites ORDER BY createdAtMs DESC";
+    final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 0);
+    return CoroutinesRoom.createFlow(__db, false, new String[] {"favorites"}, new Callable<List<FavoriteEntity>>() {
+      @Override
+      @NonNull
+      public List<FavoriteEntity> call() throws Exception {
+        final Cursor _cursor = DBUtil.query(__db, _statement, false, null);
+        try {
+          final int _cursorIndexOfKey = CursorUtil.getColumnIndexOrThrow(_cursor, "key");
+          final int _cursorIndexOfItemType = CursorUtil.getColumnIndexOrThrow(_cursor, "itemType");
+          final int _cursorIndexOfItemId = CursorUtil.getColumnIndexOrThrow(_cursor, "itemId");
+          final int _cursorIndexOfCreatedAtMs = CursorUtil.getColumnIndexOrThrow(_cursor, "createdAtMs");
+          final List<FavoriteEntity> _result = new ArrayList<FavoriteEntity>(_cursor.getCount());
+          while (_cursor.moveToNext()) {
+            final FavoriteEntity _item;
+            final String _tmpKey;
+            _tmpKey = _cursor.getString(_cursorIndexOfKey);
+            final String _tmpItemType;
+            _tmpItemType = _cursor.getString(_cursorIndexOfItemType);
+            final String _tmpItemId;
+            _tmpItemId = _cursor.getString(_cursorIndexOfItemId);
+            final long _tmpCreatedAtMs;
+            _tmpCreatedAtMs = _cursor.getLong(_cursorIndexOfCreatedAtMs);
+            _item = new FavoriteEntity(_tmpKey,_tmpItemType,_tmpItemId,_tmpCreatedAtMs);
+            _result.add(_item);
+          }
+          return _result;
+        } finally {
+          _cursor.close();
+        }
+      }
+
+      @Override
+      protected void finalize() {
+        _statement.release();
+      }
+    });
+  }
+
+  @Override
+  public Flow<List<FavoriteEntity>> observeByType(final String type) {
+    final String _sql = "SELECT * FROM favorites WHERE itemType = ? ORDER BY createdAtMs DESC";
+    final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 1);
+    int _argIndex = 1;
+    _statement.bindString(_argIndex, type);
+    return CoroutinesRoom.createFlow(__db, false, new String[] {"favorites"}, new Callable<List<FavoriteEntity>>() {
+      @Override
+      @NonNull
+      public List<FavoriteEntity> call() throws Exception {
+        final Cursor _cursor = DBUtil.query(__db, _statement, false, null);
+        try {
+          final int _cursorIndexOfKey = CursorUtil.getColumnIndexOrThrow(_cursor, "key");
+          final int _cursorIndexOfItemType = CursorUtil.getColumnIndexOrThrow(_cursor, "itemType");
+          final int _cursorIndexOfItemId = CursorUtil.getColumnIndexOrThrow(_cursor, "itemId");
+          final int _cursorIndexOfCreatedAtMs = CursorUtil.getColumnIndexOrThrow(_cursor, "createdAtMs");
+          final List<FavoriteEntity> _result = new ArrayList<FavoriteEntity>(_cursor.getCount());
+          while (_cursor.moveToNext()) {
+            final FavoriteEntity _item;
+            final String _tmpKey;
+            _tmpKey = _cursor.getString(_cursorIndexOfKey);
+            final String _tmpItemType;
+            _tmpItemType = _cursor.getString(_cursorIndexOfItemType);
+            final String _tmpItemId;
+            _tmpItemId = _cursor.getString(_cursorIndexOfItemId);
+            final long _tmpCreatedAtMs;
+            _tmpCreatedAtMs = _cursor.getLong(_cursorIndexOfCreatedAtMs);
+            _item = new FavoriteEntity(_tmpKey,_tmpItemType,_tmpItemId,_tmpCreatedAtMs);
+            _result.add(_item);
+          }
+          return _result;
+        } finally {
+          _cursor.close();
+        }
+      }
+
+      @Override
+      protected void finalize() {
+        _statement.release();
+      }
+    });
+  }
+
+  @Override
+  public Flow<Boolean> isFavoriteFlow(final String type, final String itemId) {
+    final String _sql = "SELECT EXISTS(SELECT 1 FROM favorites WHERE itemType = ? AND itemId = ?)";
+    final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 2);
+    int _argIndex = 1;
+    _statement.bindString(_argIndex, type);
+    _argIndex = 2;
+    _statement.bindString(_argIndex, itemId);
+    return CoroutinesRoom.createFlow(__db, false, new String[] {"favorites"}, new Callable<Boolean>() {
+      @Override
+      @NonNull
+      public Boolean call() throws Exception {
+        final Cursor _cursor = DBUtil.query(__db, _statement, false, null);
+        try {
+          final Boolean _result;
+          if (_cursor.moveToFirst()) {
+            final int _tmp;
+            _tmp = _cursor.getInt(0);
+            _result = _tmp != 0;
+          } else {
+            _result = false;
+          }
+          return _result;
+        } finally {
+          _cursor.close();
+        }
+      }
+
+      @Override
+      protected void finalize() {
+        _statement.release();
+      }
+    });
   }
 
   @NonNull
