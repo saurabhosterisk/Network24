@@ -1,4 +1,4 @@
-# Network24
+# Network24 Services
 
 > IMPORTANT (Single Source of Truth)
 >
@@ -318,3 +318,5 @@ Whenever you change any of the following, update this README in the same PR/comm
 - [ ] Consider EncryptedSharedPreferences for credentials.
 - [ ] Consider using Theme attributes instead of hard-coded layout colors.
 - [ ] Add error UI states (empty/error views) for categories/channels.
+
+## Changes done to READ ME.md
