@@ -250,16 +250,11 @@ class PlayerActivity : BaseActivity() {
 
             // 3. Collection path exact match with ChatHubActivity ("general" room)
             db.collection("rooms")
-                .document("general")
+                .document("channel_down")
                 .collection("messages")
                 .add(chatData)
                 .addOnSuccessListener {
                     binding.txtPlayerError.text = "Channel reported. Our team will look into it."
-                    Toast.makeText(
-                        this@PlayerActivity,
-                        "Report sent to General Chat!",
-                        Toast.LENGTH_SHORT
-                    ).show()
                 }
                 .addOnFailureListener { exception ->
                     binding.btnReportChannel.visibility = View.VISIBLE

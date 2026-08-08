@@ -198,14 +198,25 @@ class ChatHubActivity : BaseActivity() {
 
     private fun defaultRooms(): List<ChatRoom> {
         return listOf(
+            // Admin only channels (readOnly = true)
             ChatRoom("announcements", "Announcements", "📢", 1, readOnly = true),
-            ChatRoom("live_support", "Live Support", "🛠", 2, readOnly = false),
-            ChatRoom("general", "General Chat", "💬", 3, readOnly = false),
-            ChatRoom("bug_reports", "Bug Reports", "🐞", 4, readOnly = false),
-            ChatRoom("feature_requests", "Feature Requests", "💡", 5, readOnly = false),
-            ChatRoom("tips_tricks", "Tips & Tricks", "⭐", 6, readOnly = false)
+            ChatRoom("pinned_posts", "Pinned Posts", "📌", 2, readOnly = true),
+
+            // Support & Feedback (Open for users)
+            ChatRoom("channel_down", "Channel Down", "🚨", 3, readOnly = false),
+            ChatRoom("buffering_issues", "Buffering Issues", "⏳", 4, readOnly = false),
+            ChatRoom("questions_and_help", "Questions & Help", "❓", 5, readOnly = false),
+            ChatRoom("channel_requests", "Channel Requests", "📡", 6, readOnly = false),
+
+            // Community (Open for users)
+            ChatRoom("general_discussions", "General Discussions", "💬", 7, readOnly = false),
+            ChatRoom("live_events", "Live Events", "🏆", 8, readOnly = false),
+
+            // Dev/Behind the scenes (Open for users or change readOnly=true based on your need)
+            ChatRoom("development_desk", "Development Desk", "💻", 9, readOnly = false)
         ).sortedBy { it.order }
     }
+
 
     // --- MASTER TV FOCUS CONTROLLER (STRICT FOCUS TRAP) ---
 
