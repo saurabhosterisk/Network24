@@ -1,61 +1,10 @@
 {
     "logs": [
         {
-            "outputFile": "com.network24.player.app-mergeDebugResources-45:/values-th/values-th.xml",
+            "outputFile": "com.network24.player.app-mergeDebugResources-46:/values-th/values-th.xml",
             "map": [
                 {
-                    "source": "C:\\Users\\saura\\.gradle\\caches\\9.2.1\\transforms\\d7d2279811c7e752f1e0742d37c3cc35\\workspace\\transformed\\media3-exoplayer-1.8.0\\res\\values-th\\values-th.xml",
-                    "from": {
-                        "startLines": "2,3,4,5,6,7,8,9,10",
-                        "startColumns": "4,4,4,4,4,4,4,4,4",
-                        "startOffsets": "55,131,194,262,330,407,480,571,657",
-                        "endColumns": "75,62,67,67,76,72,90,85,78",
-                        "endOffsets": "126,189,257,325,402,475,566,652,731"
-                    },
-                    "to": {
-                        "startLines": "109,110,111,112,113,114,115,116,117",
-                        "startColumns": "4,4,4,4,4,4,4,4,4",
-                        "startOffsets": "9147,9223,9286,9354,9422,9499,9572,9663,9749",
-                        "endColumns": "75,62,67,67,76,72,90,85,78",
-                        "endOffsets": "9218,9281,9349,9417,9494,9567,9658,9744,9823"
-                    }
-                },
-                {
-                    "source": "C:\\Users\\saura\\.gradle\\caches\\9.2.1\\transforms\\4cbb068cd33caadd24feb9d9a6f8c73f\\workspace\\transformed\\play-services-basement-18.3.0\\res\\values-th\\values.xml",
-                    "from": {
-                        "startLines": "4",
-                        "startColumns": "0",
-                        "startOffsets": "195",
-                        "endColumns": "124",
-                        "endOffsets": "319"
-                    },
-                    "to": {
-                        "startLines": "73",
-                        "startColumns": "4",
-                        "startOffsets": "5941",
-                        "endColumns": "128",
-                        "endOffsets": "6065"
-                    }
-                },
-                {
-                    "source": "C:\\Users\\saura\\.gradle\\caches\\9.2.1\\transforms\\ec94f97064463f672ca2be3011980286\\workspace\\transformed\\core-1.16.0\\res\\values-th\\values-th.xml",
-                    "from": {
-                        "startLines": "2,3,4,5,6,7,8,9",
-                        "startColumns": "4,4,4,4,4,4,4,4",
-                        "startOffsets": "55,151,254,352,450,553,658,770",
-                        "endColumns": "95,102,97,97,102,104,111,100",
-                        "endOffsets": "146,249,347,445,548,653,765,866"
-                    },
-                    "to": {
-                        "startLines": "55,56,57,58,59,60,61,201",
-                        "startColumns": "4,4,4,4,4,4,4,4",
-                        "startOffsets": "3964,4060,4163,4261,4359,4462,4567,16031",
-                        "endColumns": "95,102,97,97,102,104,111,100",
-                        "endOffsets": "4055,4158,4256,4354,4457,4562,4674,16127"
-                    }
-                },
-                {
-                    "source": "C:\\Users\\saura\\.gradle\\caches\\9.2.1\\transforms\\215c61b6c6c5c50cb088bb745ca7039f\\workspace\\transformed\\media3-ui-1.8.0\\res\\values-th\\values-th.xml",
+                    "source": "C:\\Users\\saura\\.gradle\\caches\\9.2.1\\transforms\\cfeccd645f8d296ca1522bdc78a6d0e2\\workspace\\transformed\\media3-ui-1.8.0\\res\\values-th\\values-th.xml",
                     "from": {
                         "startLines": "2,11,15,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59",
                         "startColumns": "4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4",
@@ -74,7 +23,41 @@
                     }
                 },
                 {
-                    "source": "C:\\Users\\saura\\.gradle\\caches\\9.2.1\\transforms\\c2481e8b4dfab99570a0c5fcc9cdc687\\workspace\\transformed\\play-services-base-18.0.1\\res\\values-th\\values.xml",
+                    "source": "C:\\Users\\saura\\.gradle\\caches\\9.2.1\\transforms\\edb44d39ee13875afef3e112a5420c45\\workspace\\transformed\\core-1.16.0\\res\\values-th\\values-th.xml",
+                    "from": {
+                        "startLines": "2,3,4,5,6,7,8,9",
+                        "startColumns": "4,4,4,4,4,4,4,4",
+                        "startOffsets": "55,151,254,352,450,553,658,770",
+                        "endColumns": "95,102,97,97,102,104,111,100",
+                        "endOffsets": "146,249,347,445,548,653,765,866"
+                    },
+                    "to": {
+                        "startLines": "55,56,57,58,59,60,61,201",
+                        "startColumns": "4,4,4,4,4,4,4,4",
+                        "startOffsets": "3964,4060,4163,4261,4359,4462,4567,16031",
+                        "endColumns": "95,102,97,97,102,104,111,100",
+                        "endOffsets": "4055,4158,4256,4354,4457,4562,4674,16127"
+                    }
+                },
+                {
+                    "source": "C:\\Users\\saura\\.gradle\\caches\\9.2.1\\transforms\\8f7ee7912bd7db90cbec83a74276259f\\workspace\\transformed\\play-services-basement-18.3.0\\res\\values-th\\values.xml",
+                    "from": {
+                        "startLines": "4",
+                        "startColumns": "0",
+                        "startOffsets": "195",
+                        "endColumns": "124",
+                        "endOffsets": "319"
+                    },
+                    "to": {
+                        "startLines": "73",
+                        "startColumns": "4",
+                        "startOffsets": "5941",
+                        "endColumns": "128",
+                        "endOffsets": "6065"
+                    }
+                },
+                {
+                    "source": "C:\\Users\\saura\\.gradle\\caches\\9.2.1\\transforms\\618b510a18a563a179dc0e95d54535fe\\workspace\\transformed\\play-services-base-18.0.1\\res\\values-th\\values.xml",
                     "from": {
                         "startLines": "4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20",
                         "startColumns": "0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0",
@@ -91,7 +74,7 @@
                     }
                 },
                 {
-                    "source": "C:\\Users\\saura\\.gradle\\caches\\9.2.1\\transforms\\4aba89f85428dcd21c8553e46e729575\\workspace\\transformed\\material-1.12.0\\res\\values-th\\values-th.xml",
+                    "source": "C:\\Users\\saura\\.gradle\\caches\\9.2.1\\transforms\\12b2b960db2b21bad7a96339bbb4f5e0\\workspace\\transformed\\material-1.12.0\\res\\values-th\\values-th.xml",
                     "from": {
                         "startLines": "2,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80",
                         "startColumns": "4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4",
@@ -110,7 +93,24 @@
                     }
                 },
                 {
-                    "source": "C:\\Users\\saura\\.gradle\\caches\\9.2.1\\transforms\\5c5cf5b537d955249575262b87181979\\workspace\\transformed\\appcompat-1.7.1\\res\\values-th\\values-th.xml",
+                    "source": "C:\\Users\\saura\\.gradle\\caches\\9.2.1\\transforms\\733ce3c516c3740700c2c3e4dd9b5a80\\workspace\\transformed\\media3-exoplayer-1.8.0\\res\\values-th\\values-th.xml",
+                    "from": {
+                        "startLines": "2,3,4,5,6,7,8,9,10",
+                        "startColumns": "4,4,4,4,4,4,4,4,4",
+                        "startOffsets": "55,131,194,262,330,407,480,571,657",
+                        "endColumns": "75,62,67,67,76,72,90,85,78",
+                        "endOffsets": "126,189,257,325,402,475,566,652,731"
+                    },
+                    "to": {
+                        "startLines": "109,110,111,112,113,114,115,116,117",
+                        "startColumns": "4,4,4,4,4,4,4,4,4",
+                        "startOffsets": "9147,9223,9286,9354,9422,9499,9572,9663,9749",
+                        "endColumns": "75,62,67,67,76,72,90,85,78",
+                        "endOffsets": "9218,9281,9349,9417,9494,9567,9658,9744,9823"
+                    }
+                },
+                {
+                    "source": "C:\\Users\\saura\\.gradle\\caches\\9.2.1\\transforms\\27339d61d788e929f7dc1f51dac17dbc\\workspace\\transformed\\appcompat-1.7.1\\res\\values-th\\values-th.xml",
                     "from": {
                         "startLines": "2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29",
                         "startColumns": "4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4",

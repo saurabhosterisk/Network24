@@ -1,10 +1,10 @@
 {
     "logs": [
         {
-            "outputFile": "com.network24.player.app-mergeDebugResources-45:/values-v23/values-v23.xml",
+            "outputFile": "com.network24.player.app-mergeDebugResources-46:/values-v23/values-v23.xml",
             "map": [
                 {
-                    "source": "C:\\Users\\saura\\.gradle\\caches\\9.2.1\\transforms\\7b6fa934c525279e97af14b2c684d297\\workspace\\transformed\\cardview-1.0.0\\res\\values-v23\\values-v23.xml",
+                    "source": "C:\\Users\\saura\\.gradle\\caches\\9.2.1\\transforms\\fd54f577b915d858dbefc32d8d117e21\\workspace\\transformed\\cardview-1.0.0\\res\\values-v23\\values-v23.xml",
                     "from": {
                         "startLines": "2",
                         "startColumns": "4",
@@ -23,7 +23,7 @@
                     }
                 },
                 {
-                    "source": "C:\\Users\\saura\\.gradle\\caches\\9.2.1\\transforms\\4aba89f85428dcd21c8553e46e729575\\workspace\\transformed\\material-1.12.0\\res\\values-v23\\values-v23.xml",
+                    "source": "C:\\Users\\saura\\.gradle\\caches\\9.2.1\\transforms\\12b2b960db2b21bad7a96339bbb4f5e0\\workspace\\transformed\\material-1.12.0\\res\\values-v23\\values-v23.xml",
                     "from": {
                         "startLines": "2,5,9,13,16,19,22,25,28,32",
                         "startColumns": "4,4,4,4,4,4,4,4,4,4",
@@ -42,7 +42,7 @@
                     }
                 },
                 {
-                    "source": "C:\\Users\\saura\\.gradle\\caches\\9.2.1\\transforms\\5c5cf5b537d955249575262b87181979\\workspace\\transformed\\appcompat-1.7.1\\res\\values-v23\\values-v23.xml",
+                    "source": "C:\\Users\\saura\\.gradle\\caches\\9.2.1\\transforms\\27339d61d788e929f7dc1f51dac17dbc\\workspace\\transformed\\appcompat-1.7.1\\res\\values-v23\\values-v23.xml",
                     "from": {
                         "startLines": "2,3,4,5,6,20,34,35,36,39,43,44,45,46",
                         "startColumns": "4,4,4,4,4,4,4,4,4,4,4,4,4,4",

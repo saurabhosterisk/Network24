@@ -4,6 +4,7 @@ package com.network24.player.databinding;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -35,6 +36,9 @@ public final class ActivityFavouriteChannelsBinding implements ViewBinding {
 
   @NonNull
   public final ImageView btnMore;
+
+  @NonNull
+  public final Button btnReportChannel;
 
   @NonNull
   public final MaterialCardView cardChannels;
@@ -103,7 +107,7 @@ public final class ActivityFavouriteChannelsBinding implements ViewBinding {
   public final TextView txtPlayerError;
 
   private ActivityFavouriteChannelsBinding(@NonNull DrawerLayout rootView,
-      @NonNull ImageButton btnBack, @NonNull ImageView btnMore,
+      @NonNull ImageButton btnBack, @NonNull ImageView btnMore, @NonNull Button btnReportChannel,
       @NonNull MaterialCardView cardChannels, @NonNull MaterialCardView cardEpg,
       @NonNull MaterialCardView cardPlayer, @NonNull DrawerLayout drawerLayout,
       @NonNull TextInputEditText edtSearch, @NonNull Guideline guideHorizontal,
@@ -118,6 +122,7 @@ public final class ActivityFavouriteChannelsBinding implements ViewBinding {
     this.rootView = rootView;
     this.btnBack = btnBack;
     this.btnMore = btnMore;
+    this.btnReportChannel = btnReportChannel;
     this.cardChannels = cardChannels;
     this.cardEpg = cardEpg;
     this.cardPlayer = cardPlayer;
@@ -178,6 +183,12 @@ public final class ActivityFavouriteChannelsBinding implements ViewBinding {
       id = R.id.btnMore;
       ImageView btnMore = ViewBindings.findChildViewById(rootView, id);
       if (btnMore == null) {
+        break missingId;
+      }
+
+      id = R.id.btnReportChannel;
+      Button btnReportChannel = ViewBindings.findChildViewById(rootView, id);
+      if (btnReportChannel == null) {
         break missingId;
       }
 
@@ -310,10 +321,10 @@ public final class ActivityFavouriteChannelsBinding implements ViewBinding {
       }
 
       return new ActivityFavouriteChannelsBinding((DrawerLayout) rootView, btnBack, btnMore,
-          cardChannels, cardEpg, cardPlayer, drawerLayout, edtSearch, guideHorizontal,
-          guideVertical, headerCard, layoutOverlay, playerView, progressLoading, rightNav,
-          rvChannels, searchLayout, txtCategoryName, txtNextTime, txtNextTitle, txtNowTime,
-          txtNowTitle, txtOverlayChannel, txtOverlayProgram, txtPlayerError);
+          btnReportChannel, cardChannels, cardEpg, cardPlayer, drawerLayout, edtSearch,
+          guideHorizontal, guideVertical, headerCard, layoutOverlay, playerView, progressLoading,
+          rightNav, rvChannels, searchLayout, txtCategoryName, txtNextTime, txtNextTitle,
+          txtNowTime, txtNowTitle, txtOverlayChannel, txtOverlayProgram, txtPlayerError);
     }
     String missingId = rootView.getResources().getResourceName(id);
     throw new NullPointerException("Missing required view with ID: ".concat(missingId));

@@ -4,6 +4,7 @@ package com.network24.player.databinding;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -38,6 +39,9 @@ public final class ActivityChannelListBinding implements ViewBinding {
 
   @NonNull
   public final ImageView btnMore;
+
+  @NonNull
+  public final Button btnReportChannel;
 
   @NonNull
   public final MaterialCardView cardChannels;
@@ -107,21 +111,22 @@ public final class ActivityChannelListBinding implements ViewBinding {
 
   private ActivityChannelListBinding(@NonNull DrawerLayout rootView, @NonNull ImageButton btnBack,
       @NonNull ImageButton btnFullscreen, @NonNull ImageView btnMore,
-      @NonNull MaterialCardView cardChannels, @NonNull MaterialCardView cardEpg,
-      @NonNull MaterialCardView cardPlayer, @NonNull DrawerLayout drawerLayout,
-      @NonNull TextInputEditText edtSearch, @NonNull Guideline guideHorizontal,
-      @NonNull Guideline guideVertical, @NonNull MaterialCardView headerCard,
-      @NonNull LinearLayout layoutOverlay, @NonNull PlayerView playerView,
-      @NonNull ProgressBar progressLoading, @NonNull NavigationView rightNav,
-      @NonNull RecyclerView rvChannels, @NonNull TextInputLayout searchLayout,
-      @NonNull TextView txtCategoryName, @NonNull TextView txtNextTime,
-      @NonNull TextView txtNextTitle, @NonNull TextView txtNowTime, @NonNull TextView txtNowTitle,
-      @NonNull TextView txtOverlayChannel, @NonNull TextView txtOverlayProgram,
-      @NonNull TextView txtPlayerError) {
+      @NonNull Button btnReportChannel, @NonNull MaterialCardView cardChannels,
+      @NonNull MaterialCardView cardEpg, @NonNull MaterialCardView cardPlayer,
+      @NonNull DrawerLayout drawerLayout, @NonNull TextInputEditText edtSearch,
+      @NonNull Guideline guideHorizontal, @NonNull Guideline guideVertical,
+      @NonNull MaterialCardView headerCard, @NonNull LinearLayout layoutOverlay,
+      @NonNull PlayerView playerView, @NonNull ProgressBar progressLoading,
+      @NonNull NavigationView rightNav, @NonNull RecyclerView rvChannels,
+      @NonNull TextInputLayout searchLayout, @NonNull TextView txtCategoryName,
+      @NonNull TextView txtNextTime, @NonNull TextView txtNextTitle, @NonNull TextView txtNowTime,
+      @NonNull TextView txtNowTitle, @NonNull TextView txtOverlayChannel,
+      @NonNull TextView txtOverlayProgram, @NonNull TextView txtPlayerError) {
     this.rootView = rootView;
     this.btnBack = btnBack;
     this.btnFullscreen = btnFullscreen;
     this.btnMore = btnMore;
+    this.btnReportChannel = btnReportChannel;
     this.cardChannels = cardChannels;
     this.cardEpg = cardEpg;
     this.cardPlayer = cardPlayer;
@@ -188,6 +193,12 @@ public final class ActivityChannelListBinding implements ViewBinding {
       id = R.id.btnMore;
       ImageView btnMore = ViewBindings.findChildViewById(rootView, id);
       if (btnMore == null) {
+        break missingId;
+      }
+
+      id = R.id.btnReportChannel;
+      Button btnReportChannel = ViewBindings.findChildViewById(rootView, id);
+      if (btnReportChannel == null) {
         break missingId;
       }
 
@@ -320,10 +331,10 @@ public final class ActivityChannelListBinding implements ViewBinding {
       }
 
       return new ActivityChannelListBinding((DrawerLayout) rootView, btnBack, btnFullscreen,
-          btnMore, cardChannels, cardEpg, cardPlayer, drawerLayout, edtSearch, guideHorizontal,
-          guideVertical, headerCard, layoutOverlay, playerView, progressLoading, rightNav,
-          rvChannels, searchLayout, txtCategoryName, txtNextTime, txtNextTitle, txtNowTime,
-          txtNowTitle, txtOverlayChannel, txtOverlayProgram, txtPlayerError);
+          btnMore, btnReportChannel, cardChannels, cardEpg, cardPlayer, drawerLayout, edtSearch,
+          guideHorizontal, guideVertical, headerCard, layoutOverlay, playerView, progressLoading,
+          rightNav, rvChannels, searchLayout, txtCategoryName, txtNextTime, txtNextTitle,
+          txtNowTime, txtNowTitle, txtOverlayChannel, txtOverlayProgram, txtPlayerError);
     }
     String missingId = rootView.getResources().getResourceName(id);
     throw new NullPointerException("Missing required view with ID: ".concat(missingId));

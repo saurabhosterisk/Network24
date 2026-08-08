@@ -1,10 +1,10 @@
 {
     "logs": [
         {
-            "outputFile": "com.network24.player.app-mergeDebugResources-45:/values-en-rXC/values-en-rXC.xml",
+            "outputFile": "com.network24.player.app-mergeDebugResources-46:/values-en-rXC/values-en-rXC.xml",
             "map": [
                 {
-                    "source": "C:\\Users\\saura\\.gradle\\caches\\9.2.1\\transforms\\ec94f97064463f672ca2be3011980286\\workspace\\transformed\\core-1.16.0\\res\\values-en-rXC\\values-en-rXC.xml",
+                    "source": "C:\\Users\\saura\\.gradle\\caches\\9.2.1\\transforms\\edb44d39ee13875afef3e112a5420c45\\workspace\\transformed\\core-1.16.0\\res\\values-en-rXC\\values-en-rXC.xml",
                     "from": {
                         "startLines": "2,3,4,5,6,7,8,9",
                         "startColumns": "4,4,4,4,4,4,4,4",
@@ -21,7 +21,7 @@
                     }
                 },
                 {
-                    "source": "C:\\Users\\saura\\.gradle\\caches\\9.2.1\\transforms\\5c5cf5b537d955249575262b87181979\\workspace\\transformed\\appcompat-1.7.1\\res\\values-en-rXC\\values-en-rXC.xml",
+                    "source": "C:\\Users\\saura\\.gradle\\caches\\9.2.1\\transforms\\27339d61d788e929f7dc1f51dac17dbc\\workspace\\transformed\\appcompat-1.7.1\\res\\values-en-rXC\\values-en-rXC.xml",
                     "from": {
                         "startLines": "2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29",
                         "startColumns": "4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4",

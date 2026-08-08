@@ -1,18 +1,14 @@
 [
     {
-        "merged": "C:\\Users\\saura\\.gradle\\daemon\\9.2.1\\com.network24.player.app-mergeDebugResources-46:\\layout-w600dp-v13\\activity_dashboard.xml",
-        "source": "C:\\Users\\saura\\.gradle\\daemon\\9.2.1\\com.network24.player.app-main-49:\\layout-w600dp\\activity_dashboard.xml"
+        "merged": "com.network24.player.app-mergeDebugResources-47:/layout-w600dp-v13/activity_channel_list.xml",
+        "source": "com.network24.player.app-main-50:/layout-w600dp/activity_channel_list.xml"
     },
     {
-        "merged": "com.network24.player.app-mergeDebugResources-46:/layout-w600dp-v13/activity_channel_list.xml",
-        "source": "com.network24.player.app-main-49:/layout-w600dp/activity_channel_list.xml"
+        "merged": "com.network24.player.app-mergeDebugResources-47:/layout-w600dp-v13/activity_chat_hub.xml",
+        "source": "com.network24.player.app-main-50:/layout-w600dp/activity_chat_hub.xml"
     },
     {
-        "merged": "C:\\Users\\saura\\.gradle\\daemon\\9.2.1\\com.network24.player.app-mergeDebugResources-46:\\layout-w600dp-v13\\activity_channel_list.xml",
-        "source": "C:\\Users\\saura\\.gradle\\daemon\\9.2.1\\com.network24.player.app-main-49:\\layout-w600dp\\activity_channel_list.xml"
-    },
-    {
-        "merged": "C:\\Users\\saura\\.gradle\\daemon\\9.2.1\\com.network24.player.app-mergeDebugResources-46:\\layout-w600dp-v13\\activity_chat_hub.xml",
-        "source": "C:\\Users\\saura\\.gradle\\daemon\\9.2.1\\com.network24.player.app-main-49:\\layout-w600dp\\activity_chat_hub.xml"
+        "merged": "com.network24.player.app-mergeDebugResources-47:/layout-w600dp-v13/activity_dashboard.xml",
+        "source": "com.network24.player.app-main-50:/layout-w600dp/activity_dashboard.xml"
     }
 ]

@@ -1,11 +1,16 @@
 package com.network24.player.features.dashboard.activity
 
+import android.Manifest
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.view.View
 import android.widget.Toast
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import com.google.android.material.internal.NavigationMenuView
@@ -25,6 +30,10 @@ import java.util.Locale
 import java.util.concurrent.TimeUnit
 
 class DashboardActivity : BaseActivity() {
+
+    private companion object {
+        private const val REQ_POST_NOTIFICATIONS = 9001
+    }
 
     private lateinit var binding: ActivityDashboardBinding
     private lateinit var prefs: PreferenceManager
@@ -46,6 +55,9 @@ class DashboardActivity : BaseActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityDashboardBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        // Android 13+ runtime notification permission (Phones)
+        askNotificationPermissionIfNeeded()
 
         prefs = PreferenceManager(this)
         repository = LiveRepository(this)
@@ -72,6 +84,39 @@ class DashboardActivity : BaseActivity() {
         syncInitialData(forceRefresh = false)
     }
 
+    private fun askNotificationPermissionIfNeeded() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            val granted = ContextCompat.checkSelfPermission(
+                this,
+                Manifest.permission.POST_NOTIFICATIONS
+            ) == PackageManager.PERMISSION_GRANTED
+
+            if (!granted) {
+                ActivityCompat.requestPermissions(
+                    this,
+                    arrayOf(Manifest.permission.POST_NOTIFICATIONS),
+                    REQ_POST_NOTIFICATIONS
+                )
+            }
+        }
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == REQ_POST_NOTIFICATIONS) {
+            val allowed = grantResults.isNotEmpty() &&
+                    grantResults[0] == PackageManager.PERMISSION_GRANTED
+            if (!allowed) {
+                // Optional: user denied
+                // Toast.makeText(this, "Notifications disabled", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
     private fun hasCredentials(): Boolean {
         return prefs.getServer().isNotBlank() &&
                 prefs.getUsername().isNotBlank() &&
@@ -88,8 +133,8 @@ class DashboardActivity : BaseActivity() {
         if (expiry > 0) {
             val expiryDate = Date(expiry * 1000)
             binding.txtExpiry.text = SimpleDateFormat("dd MMM yyyy", Locale.getDefault()).format(expiryDate)
-            val remainingDays = TimeUnit.MILLISECONDS.toDays(expiryDate.time - System.currentTimeMillis())
 
+            val remainingDays = TimeUnit.MILLISECONDS.toDays(expiryDate.time - System.currentTimeMillis())
             binding.txtRemaining.text = if (remainingDays > 0) "$remainingDays Days" else "Expired"
             binding.btnRenew.visibility = if (remainingDays <= 15) View.VISIBLE else View.GONE
         } else {
@@ -108,28 +153,32 @@ class DashboardActivity : BaseActivity() {
         ) { itemId ->
             when (itemId) {
                 R.id.action_home -> {
-                    // Just close drawer since we are already on Home
                     closeRightDrawer(binding.drawerLayout)
                     true
                 }
+
                 R.id.action_refresh_all -> {
                     syncInitialData(forceRefresh = true)
                     true
                 }
+
                 R.id.action_refresh_guide -> {
-                    refreshTvGuide() // Uses the BaseActivity helper
+                    refreshTvGuide()
                     true
                 }
+
                 R.id.action_settings -> {
                     Toast.makeText(this, "Settings", Toast.LENGTH_SHORT).show()
                     true
                 }
+
                 R.id.action_logout -> {
                     prefs.clear()
                     startActivity(Intent(this, LoginActivity::class.java))
                     finishAffinity()
                     true
                 }
+
                 else -> false
             }
         }
@@ -158,18 +207,23 @@ class DashboardActivity : BaseActivity() {
         binding.cardLiveTv.setOnClickListener {
             startActivity(Intent(this, LiveCategoryActivity::class.java))
         }
+
         binding.cardFavorites.setOnClickListener {
             startActivity(Intent(this, FavouriteChannelsActivity::class.java))
         }
+
         binding.cardNotification.setOnClickListener {
             Toast.makeText(this, "Notifications", Toast.LENGTH_SHORT).show()
         }
+
         binding.cardSupport.setOnClickListener {
             startActivity(Intent(this, ChatHubActivity::class.java))
         }
+
         binding.cardSettings.setOnClickListener {
             Toast.makeText(this, "Settings", Toast.LENGTH_SHORT).show()
         }
+
         binding.btnRenew.setOnClickListener {
             Toast.makeText(this, "Renew Subscription", Toast.LENGTH_SHORT).show()
         }
@@ -194,7 +248,6 @@ class DashboardActivity : BaseActivity() {
 
         isInitialSyncRunning = true
 
-        // Using the BaseActivity helper for clean UI loading
         runCallbackSyncWithLoader(
             loadingMessage = "Refreshing categories & channels…",
             successMessage = "Channels Updated Successfully!"
@@ -207,12 +260,12 @@ class DashboardActivity : BaseActivity() {
                     override fun onSuccess() {
                         isInitialSyncRunning = false
                         prefs.setLastSyncTime(System.currentTimeMillis())
-                        ok() // Hides loader and shows success toast
+                        ok()
                     }
 
                     override fun onError(message: String) {
                         isInitialSyncRunning = false
-                        fail("Failed to update: $message") // Hides loader and shows error toast
+                        fail("Failed to update: $message")
                     }
                 }
             )

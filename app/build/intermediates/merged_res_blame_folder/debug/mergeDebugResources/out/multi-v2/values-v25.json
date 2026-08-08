@@ -1,10 +1,10 @@
 {
     "logs": [
         {
-            "outputFile": "com.network24.player.app-mergeDebugResources-45:/values-v25/values-v25.xml",
+            "outputFile": "com.network24.player.app-mergeDebugResources-46:/values-v25/values-v25.xml",
             "map": [
                 {
-                    "source": "C:\\Users\\saura\\.gradle\\caches\\9.2.1\\transforms\\5c5cf5b537d955249575262b87181979\\workspace\\transformed\\appcompat-1.7.1\\res\\values-v25\\values-v25.xml",
+                    "source": "C:\\Users\\saura\\.gradle\\caches\\9.2.1\\transforms\\27339d61d788e929f7dc1f51dac17dbc\\workspace\\transformed\\appcompat-1.7.1\\res\\values-v25\\values-v25.xml",
                     "from": {
                         "startLines": "2,3,4,6",
                         "startColumns": "4,4,4,4",

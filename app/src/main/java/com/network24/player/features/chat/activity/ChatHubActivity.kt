@@ -203,14 +203,14 @@ class ChatHubActivity : BaseActivity() {
             ChatRoom("pinned_posts", "Pinned Posts", "📌", 2, readOnly = true),
 
             // Support & Feedback (Open for users)
-            ChatRoom("channel_down", "Channel Down", "🚨", 3, readOnly = false),
+            ChatRoom("channel_down", "Channel Down", "🚨", 3, readOnly = true),
             ChatRoom("buffering_issues", "Buffering Issues", "⏳", 4, readOnly = false),
             ChatRoom("questions_and_help", "Questions & Help", "❓", 5, readOnly = false),
             ChatRoom("channel_requests", "Channel Requests", "📡", 6, readOnly = false),
 
             // Community (Open for users)
             ChatRoom("general_discussions", "General Discussions", "💬", 7, readOnly = false),
-            ChatRoom("live_events", "Live Events", "🏆", 8, readOnly = false),
+            ChatRoom("live_events", "Live Events", "🏆", 8, readOnly = true),
 
             // Dev/Behind the scenes (Open for users or change readOnly=true based on your need)
             ChatRoom("development_desk", "Development Desk", "💻", 9, readOnly = false)
