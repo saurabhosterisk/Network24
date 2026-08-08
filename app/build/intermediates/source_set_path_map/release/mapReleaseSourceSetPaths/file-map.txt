@@ -1,0 +1,50 @@
+com.network24.player.app-viewpager2-1.1.0-beta02-0 C:\Users\saura\.gradle\caches\9.2.1\transforms\0513a7b38604e8b86ac88c33c11d7d6a\workspace\transformed\viewpager2-1.1.0-beta02\res
+com.network24.player.app-core-ktx-1.16.0-1 C:\Users\saura\.gradle\caches\9.2.1\transforms\0760565063ba2c88fd1c63079933bf73\workspace\transformed\core-ktx-1.16.0\res
+com.network24.player.app-lifecycle-livedata-2.7.0-2 C:\Users\saura\.gradle\caches\9.2.1\transforms\09d72dc5a0afee12aa12ca7e8bea04da\workspace\transformed\lifecycle-livedata-2.7.0\res
+com.network24.player.app-media3-ui-1.8.0-3 C:\Users\saura\.gradle\caches\9.2.1\transforms\215c61b6c6c5c50cb088bb745ca7039f\workspace\transformed\media3-ui-1.8.0\res
+com.network24.player.app-activity-1.10.1-4 C:\Users\saura\.gradle\caches\9.2.1\transforms\2455db3a3acdfc8ad6844bac10149f74\workspace\transformed\activity-1.10.1\res
+com.network24.player.app-room-ktx-2.6.1-5 C:\Users\saura\.gradle\caches\9.2.1\transforms\2778cae2e9f5303aa42502b113e62574\workspace\transformed\room-ktx-2.6.1\res
+com.network24.player.app-constraintlayout-2.2.1-6 C:\Users\saura\.gradle\caches\9.2.1\transforms\46e7aa96db53830060c36c66569ab681\workspace\transformed\constraintlayout-2.2.1\res
+com.network24.player.app-material-1.12.0-7 C:\Users\saura\.gradle\caches\9.2.1\transforms\4aba89f85428dcd21c8553e46e729575\workspace\transformed\material-1.12.0\res
+com.network24.player.app-play-services-basement-18.3.0-8 C:\Users\saura\.gradle\caches\9.2.1\transforms\4cbb068cd33caadd24feb9d9a6f8c73f\workspace\transformed\play-services-basement-18.3.0\res
+com.network24.player.app-emoji2-1.3.0-9 C:\Users\saura\.gradle\caches\9.2.1\transforms\595c7582b5f4151f43d55b97f93eb9f4\workspace\transformed\emoji2-1.3.0\res
+com.network24.player.app-appcompat-1.7.1-10 C:\Users\saura\.gradle\caches\9.2.1\transforms\5c5cf5b537d955249575262b87181979\workspace\transformed\appcompat-1.7.1\res
+com.network24.player.app-savedstate-1.2.1-11 C:\Users\saura\.gradle\caches\9.2.1\transforms\5d2160d67131c7389fcd6c463c2a2ba4\workspace\transformed\savedstate-1.2.1\res
+com.network24.player.app-glide-4.16.0-12 C:\Users\saura\.gradle\caches\9.2.1\transforms\5e76f2143a76588dfbaed92904e7a35c\workspace\transformed\glide-4.16.0\res
+com.network24.player.app-coordinatorlayout-1.1.0-13 C:\Users\saura\.gradle\caches\9.2.1\transforms\65d9c60b1833b70f961934175dcb1fa9\workspace\transformed\coordinatorlayout-1.1.0\res
+com.network24.player.app-emoji2-views-helper-1.3.0-14 C:\Users\saura\.gradle\caches\9.2.1\transforms\68e9e23decc35de0ad963a131cb305bc\workspace\transformed\emoji2-views-helper-1.3.0\res
+com.network24.player.app-fragment-1.5.4-15 C:\Users\saura\.gradle\caches\9.2.1\transforms\6a607825fda14d74af1477b094edc3d1\workspace\transformed\fragment-1.5.4\res
+com.network24.player.app-tracing-1.2.0-16 C:\Users\saura\.gradle\caches\9.2.1\transforms\6be71956a8b079bbe208808b50b67a94\workspace\transformed\tracing-1.2.0\res
+com.network24.player.app-lifecycle-viewmodel-2.7.0-17 C:\Users\saura\.gradle\caches\9.2.1\transforms\74e83ac0cef5b7af0aa31323df976b6b\workspace\transformed\lifecycle-viewmodel-2.7.0\res
+com.network24.player.app-sqlite-framework-2.4.0-18 C:\Users\saura\.gradle\caches\9.2.1\transforms\752bfa29b384149f0e0e3c9d355faea5\workspace\transformed\sqlite-framework-2.4.0\res
+com.network24.player.app-lifecycle-runtime-2.7.0-19 C:\Users\saura\.gradle\caches\9.2.1\transforms\7616f8c6e2e60ec0e76186a1585a071f\workspace\transformed\lifecycle-runtime-2.7.0\res
+com.network24.player.app-cardview-1.0.0-20 C:\Users\saura\.gradle\caches\9.2.1\transforms\7b6fa934c525279e97af14b2c684d297\workspace\transformed\cardview-1.0.0\res
+com.network24.player.app-lifecycle-livedata-core-ktx-2.7.0-21 C:\Users\saura\.gradle\caches\9.2.1\transforms\8d06fb554225e4d702e2222d8a87320a\workspace\transformed\lifecycle-livedata-core-ktx-2.7.0\res
+com.network24.player.app-lifecycle-viewmodel-savedstate-2.7.0-22 C:\Users\saura\.gradle\caches\9.2.1\transforms\9e38c41b7a463d3d42913c70d2860993\workspace\transformed\lifecycle-viewmodel-savedstate-2.7.0\res
+com.network24.player.app-room-runtime-2.6.1-23 C:\Users\saura\.gradle\caches\9.2.1\transforms\9e5aa3080e7e50ad14e01a5465ddadf9\workspace\transformed\room-runtime-2.6.1\res
+com.network24.player.app-transition-1.5.0-24 C:\Users\saura\.gradle\caches\9.2.1\transforms\a0cd5d6fa1554796e26bf6aac37dfb00\workspace\transformed\transition-1.5.0\res
+com.network24.player.app-annotation-experimental-1.4.1-25 C:\Users\saura\.gradle\caches\9.2.1\transforms\a3f0343121df363402a405ccdebbf285\workspace\transformed\annotation-experimental-1.4.1\res
+com.network24.player.app-core-runtime-2.2.0-26 C:\Users\saura\.gradle\caches\9.2.1\transforms\b23d500c6312032ec62ca97327bedf74\workspace\transformed\core-runtime-2.2.0\res
+com.network24.player.app-sqlite-2.4.0-27 C:\Users\saura\.gradle\caches\9.2.1\transforms\b385c74e8673af284af8b787528f14df\workspace\transformed\sqlite-2.4.0\res
+com.network24.player.app-play-services-base-18.0.1-28 C:\Users\saura\.gradle\caches\9.2.1\transforms\c2481e8b4dfab99570a0c5fcc9cdc687\workspace\transformed\play-services-base-18.0.1\res
+com.network24.player.app-firebase-common-21.0.0-29 C:\Users\saura\.gradle\caches\9.2.1\transforms\c8a1958910a4edb2b42d1b63014ca0e7\workspace\transformed\firebase-common-21.0.0\res
+com.network24.player.app-recyclerview-1.4.0-30 C:\Users\saura\.gradle\caches\9.2.1\transforms\ce5ca6bd02c37e1268cbc0d47db237cd\workspace\transformed\recyclerview-1.4.0\res
+com.network24.player.app-profileinstaller-1.4.0-31 C:\Users\saura\.gradle\caches\9.2.1\transforms\d4224277171908ec3a9892baee74252f\workspace\transformed\profileinstaller-1.4.0\res
+com.network24.player.app-startup-runtime-1.1.1-32 C:\Users\saura\.gradle\caches\9.2.1\transforms\d46fc32e3c1af07c7f9293330443bc3e\workspace\transformed\startup-runtime-1.1.1\res
+com.network24.player.app-drawerlayout-1.1.1-33 C:\Users\saura\.gradle\caches\9.2.1\transforms\d4c2defde9b6c4db4bbb01c46c0b2f5f\workspace\transformed\drawerlayout-1.1.1\res
+com.network24.player.app-lifecycle-process-2.7.0-34 C:\Users\saura\.gradle\caches\9.2.1\transforms\d7573fc9bb980b5d278f2833faa7d4bf\workspace\transformed\lifecycle-process-2.7.0\res
+com.network24.player.app-media3-exoplayer-1.8.0-35 C:\Users\saura\.gradle\caches\9.2.1\transforms\d7d2279811c7e752f1e0742d37c3cc35\workspace\transformed\media3-exoplayer-1.8.0\res
+com.network24.player.app-core-viewtree-1.0.0-36 C:\Users\saura\.gradle\caches\9.2.1\transforms\dc54f949ee18a362a83f6f8ae8cae614\workspace\transformed\core-viewtree-1.0.0\res
+com.network24.player.app-coil-base-2.7.0-37 C:\Users\saura\.gradle\caches\9.2.1\transforms\e73f9d909b060b2b4a9915c283098f3d\workspace\transformed\coil-base-2.7.0\res
+com.network24.player.app-customview-poolingcontainer-1.0.0-38 C:\Users\saura\.gradle\caches\9.2.1\transforms\eb75dc09fc4d13d010f680d71dd83501\workspace\transformed\customview-poolingcontainer-1.0.0\res
+com.network24.player.app-core-1.16.0-39 C:\Users\saura\.gradle\caches\9.2.1\transforms\ec94f97064463f672ca2be3011980286\workspace\transformed\core-1.16.0\res
+com.network24.player.app-appcompat-resources-1.7.1-40 C:\Users\saura\.gradle\caches\9.2.1\transforms\ede8e1ebdcb7a21c1385019296a9750b\workspace\transformed\appcompat-resources-1.7.1\res
+com.network24.player.app-lifecycle-livedata-core-2.7.0-41 C:\Users\saura\.gradle\caches\9.2.1\transforms\fc5c65c0fe904b4801411c503dd5c469\workspace\transformed\lifecycle-livedata-core-2.7.0\res
+com.network24.player.app-pngs-42 D:\Android Development\Network24\app\build\generated\res\pngs\release
+com.network24.player.app-res-43 D:\Android Development\Network24\app\build\generated\res\processReleaseGoogleServices
+com.network24.player.app-resValues-44 D:\Android Development\Network24\app\build\generated\res\resValues\release
+com.network24.player.app-packageReleaseResources-45 D:\Android Development\Network24\app\build\intermediates\incremental\release\packageReleaseResources\merged.dir
+com.network24.player.app-packageReleaseResources-46 D:\Android Development\Network24\app\build\intermediates\incremental\release\packageReleaseResources\stripped.dir
+com.network24.player.app-release-47 D:\Android Development\Network24\app\build\intermediates\merged_res\release\mergeReleaseResources
+com.network24.player.app-main-48 D:\Android Development\Network24\app\src\main\res
+com.network24.player.app-release-49 D:\Android Development\Network24\app\src\release\res

@@ -7,13 +7,15 @@ import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Base64
-import android.view.LayoutInflater
 import android.view.View
 import android.widget.Toast
+import androidx.core.view.GravityCompat
+import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.lifecycleScope
 import androidx.media3.common.PlaybackException
 import androidx.media3.common.Player
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.android.material.internal.NavigationMenuView
 import com.google.firebase.firestore.FirebaseFirestore
 import com.network24.player.R
 import com.network24.player.core.base.BaseActivity
@@ -39,8 +41,10 @@ class FavouriteChannelsActivity : BaseActivity() {
     private lateinit var binding: ActivityFavouriteChannelsBinding
     private lateinit var repository: LiveRepository
     private lateinit var prefs: PreferenceManager
-    private var isGoingToFullscreen = false
+    private lateinit var favRepo: FavoritesRepository
+
     private lateinit var adapter: ChannelAdapter
+    private var isGoingToFullscreen = false
     private var loadingDialog: AlertDialog? = null
 
     private var retryCount = 0
@@ -55,9 +59,6 @@ class FavouriteChannelsActivity : BaseActivity() {
     private val allChannels = mutableListOf<LiveChannel>()
     private val channelList = mutableListOf<LiveChannel>()
 
-    private lateinit var favRepo: FavoritesRepository
-
-    // ✅ Fix: cache favourites ids in memory (no suspend calls in TextWatcher)
     private var currentFavIds: Set<String> = emptySet()
 
     private val playerListener = object : Player.Listener {
@@ -75,7 +76,6 @@ class FavouriteChannelsActivity : BaseActivity() {
                     "Playback Error. Trying to reconnect in 3 sec. ($retryCount)",
                     Toast.LENGTH_SHORT
                 ).show()
-
                 retryJob?.cancel()
                 retryJob = lifecycleScope.launch {
                     delay(3000)
@@ -83,18 +83,13 @@ class FavouriteChannelsActivity : BaseActivity() {
                         val currentChannel = channelList[previewPosition]
                         val streamUrl = buildStreamUrl(currentChannel)
                         binding.progressLoading.visibility = View.VISIBLE
-                        PlayerManager.play(
-                            this@FavouriteChannelsActivity,
-                            binding.playerView,
-                            streamUrl
-                        )
+                        PlayerManager.play(this@FavouriteChannelsActivity, binding.playerView, streamUrl)
                     }
                 }
             } else {
                 binding.progressLoading.visibility = View.GONE
                 binding.txtPlayerError.visibility = View.VISIBLE
-                val finalError =
-                    "Sorry, This video can not be played. Please try again or pick another video."
+                val finalError = "Sorry, This video can not be played. Please try again or pick another video."
                 binding.txtNowTitle.text = "Playback Failed"
                 binding.txtOverlayProgram.text = finalError
                 Toast.makeText(this@FavouriteChannelsActivity, finalError, Toast.LENGTH_LONG).show()
@@ -109,42 +104,14 @@ class FavouriteChannelsActivity : BaseActivity() {
 
         prefs = PreferenceManager(this)
         repository = LiveRepository(this)
-
         val db = DatabaseProvider.get(this)
         favRepo = FavoritesRepository(db.favoritesDao(), FirebaseFirestore.getInstance())
 
         binding.btnBack.setOnClickListener { finish() }
-
         binding.playerView.setShowSubtitleButton(false)
         binding.playerView.subtitleView?.visibility = View.GONE
 
-        binding.btnMore.setOnClickListener { openRightDrawer(binding.drawerLayout) }
-
-        setupOptionalRightDrawerMenu(binding.drawerLayout, binding.rightNav) { itemId ->
-            when (itemId) {
-                R.id.action_home -> {
-                    startActivity(Intent(this, DashboardActivity::class.java))
-                    true
-                }
-
-                R.id.action_logout -> {
-                    lifecycleScope.launch {
-                        try {
-                            DatabaseProvider.get(this@FavouriteChannelsActivity)
-                                .favoritesDao()
-                                .clearAll()
-                        } catch (_: Exception) {
-                        }
-                        prefs.clear()
-                        startActivity(Intent(this@FavouriteChannelsActivity, LoginActivity::class.java))
-                        finishAffinity()
-                    }
-                    true
-                }
-
-                else -> false
-            }
-        }
+        setupDrawerAndMenu()
 
         binding.playerView.setOnClickListener {
             if (isTouchDevice && previewPosition != -1 && channelList.isNotEmpty()) {
@@ -155,7 +122,7 @@ class FavouriteChannelsActivity : BaseActivity() {
         setupRecycler()
         setupSearch()
 
-        // ✅ Auto-update favourites from Room
+        // Room Flow observation (Safe on Main Thread)
         lifecycleScope.launch {
             db.favoritesDao().observeByType("LIVE_CHANNEL").collect { favs ->
                 val favIds = favs.map { it.itemId }.toSet()
@@ -167,32 +134,6 @@ class FavouriteChannelsActivity : BaseActivity() {
         ensureInitialSyncThenLoadFavourites()
     }
 
-    // ----------------------------
-    // Loader dialog
-    // ----------------------------
-    private fun showLoader() {
-        if (loadingDialog == null) {
-            val view = LayoutInflater.from(this).inflate(R.layout.dialog_loading, null)
-            val builder = AlertDialog.Builder(this)
-            builder.setView(view)
-            builder.setCancelable(false)
-            loadingDialog = builder.create()
-            loadingDialog?.window?.setBackgroundDrawableResource(android.R.color.transparent)
-        }
-        if (!isFinishing && loadingDialog?.isShowing == false) {
-            loadingDialog?.show()
-        }
-    }
-
-    private fun hideLoader() {
-        if (loadingDialog != null && loadingDialog!!.isShowing) {
-            loadingDialog?.dismiss()
-        }
-    }
-
-    // ----------------------------
-    // Auto First Sync + load channels into memory
-    // ----------------------------
     private fun ensureInitialSyncThenLoadFavourites() {
         lifecycleScope.launch {
             try {
@@ -207,39 +148,12 @@ class FavouriteChannelsActivity : BaseActivity() {
                 if (allDbChannels.isNotEmpty()) {
                     allChannels.clear()
                     allChannels.addAll(allDbChannels)
-                    // UI will show via Flow collector refreshFavouriteListFromDb()
-                    return@launch
+                    refreshFavouriteListFromDb(currentFavIds)
+                } else {
+                    forceRefreshData(isInitialSync = true)
                 }
-
-                showLoader()
-                repository.syncAllData(
-                    server = prefs.getServer(),
-                    username = prefs.getUsername(),
-                    password = prefs.getPassword(),
-                    callback = object : SyncCallback {
-                        override fun onSuccess() {
-                            hideLoader()
-                            prefs.setLastSyncTime(System.currentTimeMillis())
-                            loadAllChannelsToMemory(forceRefresh = true)
-                        }
-
-                        override fun onError(message: String) {
-                            hideLoader()
-                            Toast.makeText(
-                                this@FavouriteChannelsActivity,
-                                "Initial sync failed: $message",
-                                Toast.LENGTH_LONG
-                            ).show()
-                            loadAllChannelsToMemory(forceRefresh = false)
-                        }
-                    }
-                )
             } catch (e: Exception) {
-                Toast.makeText(
-                    this@FavouriteChannelsActivity,
-                    e.message ?: "Initial load failed",
-                    Toast.LENGTH_LONG
-                ).show()
+                Toast.makeText(this@FavouriteChannelsActivity, e.message ?: "Initial load failed", Toast.LENGTH_LONG).show()
             }
         }
     }
@@ -254,9 +168,9 @@ class FavouriteChannelsActivity : BaseActivity() {
                     categoryId = "",
                     forceRefresh = forceRefresh
                 )
+
                 allChannels.clear()
                 allChannels.addAll(allChannelsFromRepo)
-                // UI refresh happens when Flow emits currentFavIds
                 refreshFavouriteListFromDb(currentFavIds)
             } catch (e: Exception) {
                 Toast.makeText(this@FavouriteChannelsActivity, e.message, Toast.LENGTH_LONG).show()
@@ -264,9 +178,6 @@ class FavouriteChannelsActivity : BaseActivity() {
         }
     }
 
-    // ----------------------------
-    // favIds + allChannels -> favourite list
-    // ----------------------------
     private fun refreshFavouriteListFromDb(favIds: Set<String>) {
         if (allChannels.isEmpty()) {
             adapter.updateData(emptyList())
@@ -303,21 +214,99 @@ class FavouriteChannelsActivity : BaseActivity() {
         loadProgramGuide(channelList[previewPosition])
     }
 
-    // ----------------------------
-    // Remove from favourites (Room + Firebase)
-    // ----------------------------
+    private var isRefreshing = false
+
+    private fun forceRefreshData(isInitialSync: Boolean = false) {
+        if (isRefreshing) return
+        isRefreshing = true
+
+        val msg = if (isInitialSync) "Downloading Channels for the first time…" else "Refreshing channels & categories…"
+
+        runCallbackSyncWithLoader(
+            loadingMessage = msg,
+            successMessage = "Channels Refreshed Successfully!"
+        ) { onSuccess, onError ->
+            repository.syncAllData(
+                server = prefs.getServer(),
+                username = prefs.getUsername(),
+                password = prefs.getPassword(),
+                callback = object : SyncCallback {
+                    override fun onSuccess() {
+                        isRefreshing = false
+                        prefs.setLastSyncTime(System.currentTimeMillis())
+                        onSuccess()
+                        loadAllChannelsToMemory(forceRefresh = true)
+                    }
+                    override fun onError(message: String) {
+                        isRefreshing = false
+                        onError("Failed to refresh: $message")
+                    }
+                }
+            )
+        }
+    }
+
+    private fun setupDrawerAndMenu() {
+        binding.btnMore.setOnClickListener { openRightDrawer(binding.drawerLayout) }
+
+        setupOptionalRightDrawerMenu(binding.drawerLayout, binding.rightNav) { itemId ->
+            when (itemId) {
+                R.id.action_home -> {
+                    startActivity(Intent(this, DashboardActivity::class.java))
+                    finish()
+                    true
+                }
+                R.id.action_refresh_all -> {
+                    forceRefreshData()
+                    true
+                }
+                R.id.action_refresh_guide -> {
+                    refreshTvGuide()
+                    true
+                }
+                R.id.action_logout -> {
+                    lifecycleScope.launch {
+                        try {
+                            DatabaseProvider.get(this@FavouriteChannelsActivity).favoritesDao().clearAll()
+                        } catch (_: Exception) {}
+
+                        prefs.clear()
+                        startActivity(Intent(this@FavouriteChannelsActivity, LoginActivity::class.java))
+                        finishAffinity()
+                    }
+                    true
+                }
+                else -> false
+            }
+        }
+
+        binding.drawerLayout.addDrawerListener(object : DrawerLayout.SimpleDrawerListener() {
+            override fun onDrawerOpened(drawerView: View) {
+                if (drawerView.id == binding.rightNav.id) {
+                    binding.rightNav.post {
+                        val menuView = binding.rightNav.getChildAt(0) as? NavigationMenuView
+                        if (menuView != null) {
+                            for (i in 0 until menuView.childCount) {
+                                val child = menuView.getChildAt(i)
+                                if (child.isFocusable) {
+                                    child.requestFocus()
+                                    break
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        })
+    }
+
     private fun removeFromFavourites(channel: LiveChannel) {
         val streamId = channel.stream_id?.toString() ?: return
         val userId = prefs.getUsername()
 
         lifecycleScope.launch {
             favRepo.removeFavorite(userId, "LIVE_CHANNEL", streamId)
-            Toast.makeText(
-                this@FavouriteChannelsActivity,
-                "${channel.name} removed from Favourites",
-                Toast.LENGTH_SHORT
-            ).show()
-            // UI auto refresh via Flow
+            Toast.makeText(this@FavouriteChannelsActivity, "${channel.name} removed from Favourites", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -339,80 +328,18 @@ class FavouriteChannelsActivity : BaseActivity() {
 
     private fun openFullscreen(channel: LiveChannel, position: Int) {
         isGoingToFullscreen = true
-
         PlayerState.channels.clear()
         PlayerState.channels.addAll(channelList)
         PlayerState.currentPosition = position
 
         val streamUrl = buildStreamUrl(channel)
         PlayerManager.play(this, binding.playerView, streamUrl)
-
         startActivity(Intent(this, PlayerActivity::class.java))
     }
 
     private fun buildStreamUrl(channel: LiveChannel): String {
         val server = prefs.getServer().trim().trimEnd('/')
         return "$server/live/${prefs.getUsername()}/${prefs.getPassword()}/${channel.stream_id}.m3u8"
-    }
-
-    private fun setupRecycler() {
-        binding.rvChannels.layoutManager = LinearLayoutManager(this)
-
-        adapter = ChannelAdapter(
-            channels = mutableListOf(),
-            favouriteIds = emptySet(), // ✅ Flow will update
-            onFocused = { _, _ -> },
-            onClicked = { channel, position ->
-                if (previewPosition == position) {
-                    openFullscreen(channel, position)
-                } else {
-                    previewPosition = position
-                    adapter.setPlaying(position)
-                    showPreview(channel)
-                    loadProgramGuide(channel)
-                }
-            },
-            onLongClicked = { channel, _ ->
-                confirmRemoveFavourite(channel)
-            }
-        )
-
-        binding.rvChannels.adapter = adapter
-        PlayerManager.attach(this, binding.playerView)
-    }
-
-    private fun setupSearch() {
-        binding.edtSearch.addTextChangedListener(object : TextWatcher {
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                val keyword = s.toString()
-
-                val filtered = allChannels.filter {
-                    it.name?.contains(keyword, ignoreCase = true) ?: false
-                }
-
-                // ✅ No DB calls here
-                val favIds = currentFavIds
-                val favFiltered = filtered.filter {
-                    favIds.contains(it.stream_id?.toString().orEmpty())
-                }
-
-                channelList.clear()
-                channelList.addAll(favFiltered)
-
-                adapter.updateData(channelList)
-                adapter.updateFavourites(favIds)
-
-                if (previewPosition !in channelList.indices) {
-                    adapter.setPlaying(-1)
-                } else {
-                    adapter.setPlaying(previewPosition)
-                }
-            }
-
-            override fun afterTextChanged(s: Editable?) {}
-        })
     }
 
     private fun loadProgramGuide(channel: LiveChannel) {
@@ -426,16 +353,17 @@ class FavouriteChannelsActivity : BaseActivity() {
                     prefs.getPassword(),
                     streamId
                 )
+
                 val list = epg.epg_listings
-                if (list.isEmpty()) {
+                if (list.isNullOrEmpty()) {
                     binding.txtNowTitle.text = "No EPG"
                     binding.txtOverlayProgram.text = ""
                     return@launch
                 }
-
                 val now = list[0]
                 binding.txtNowTitle.text = decodeBase64(now.title)
                 binding.txtOverlayProgram.text = binding.txtNowTitle.text
+
             } catch (_: Exception) {
                 binding.txtNowTitle.text = "EPG unavailable"
             }
@@ -451,27 +379,57 @@ class FavouriteChannelsActivity : BaseActivity() {
         }
     }
 
-    override fun onResume() {
-        super.onResume()
-        isGoingToFullscreen = false
+    private fun setupRecycler() {
+        binding.rvChannels.layoutManager = LinearLayoutManager(this)
+        adapter = ChannelAdapter(
+            channels = mutableListOf(),
+            favouriteIds = emptySet(),
+            onFocused = { _, _ -> },
+            onClicked = { channel, position ->
+                if (previewPosition == position) {
+                    openFullscreen(channel, position)
+                } else {
+                    previewPosition = position
+                    adapter.setPlaying(position)
+                    showPreview(channel)
+                    loadProgramGuide(channel)
+                }
+            },
+            onLongClicked = { channel, _ ->
+                confirmRemoveFavourite(channel)
+            }
+        )
+        binding.rvChannels.adapter = adapter
         PlayerManager.attach(this, binding.playerView)
-        PlayerManager.resume()
-        binding.playerView.player?.addListener(playerListener)
     }
 
-    override fun onPause() {
-        super.onPause()
-        binding.playerView.player?.removeListener(playerListener)
-        if (!isGoingToFullscreen) PlayerManager.pause()
-        PlayerManager.detach(binding.playerView)
-    }
+    private fun setupSearch() {
+        binding.edtSearch.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                val keyword = s.toString()
+                val filtered = allChannels.filter {
+                    it.name?.contains(keyword, ignoreCase = true) ?: false
+                }
 
-    override fun onDestroy() {
-        retryJob?.cancel()
-        PlayerManager.detach(binding.playerView)
-        if (isFinishing) PlayerManager.stop()
-        hideLoader()
-        super.onDestroy()
+                val favIds = currentFavIds
+                val favFiltered = filtered.filter {
+                    favIds.contains(it.stream_id?.toString().orEmpty())
+                }
+
+                channelList.clear()
+                channelList.addAll(favFiltered)
+                adapter.updateData(channelList)
+                adapter.updateFavourites(favIds)
+
+                if (previewPosition !in channelList.indices) {
+                    adapter.setPlaying(-1)
+                } else {
+                    adapter.setPlaying(previewPosition)
+                }
+            }
+            override fun afterTextChanged(s: Editable?) {}
+        })
     }
 
     private fun confirmRemoveFavourite(channel: LiveChannel) {
@@ -487,5 +445,44 @@ class FavouriteChannelsActivity : BaseActivity() {
                 dialog.dismiss()
             }
             .show()
+    }
+
+    override fun onBackPressed() {
+        if (binding.drawerLayout.isDrawerOpen(GravityCompat.END)) {
+            closeRightDrawer(binding.drawerLayout)
+        } else {
+            super.onBackPressed()
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        isGoingToFullscreen = false
+        PlayerManager.attach(this, binding.playerView)
+        PlayerManager.resume()
+        binding.playerView.player?.addListener(playerListener)
+
+        registerEpgRefresh {
+            if (previewPosition in channelList.indices) {
+                loadProgramGuide(channelList[previewPosition])
+            }
+        }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        binding.playerView.player?.removeListener(playerListener)
+        if (!isGoingToFullscreen) PlayerManager.pause()
+        PlayerManager.detach(binding.playerView)
+
+        unregisterEpgRefresh()
+    }
+
+    override fun onDestroy() {
+        retryJob?.cancel()
+        PlayerManager.detach(binding.playerView)
+        if (isFinishing) PlayerManager.stop()
+        hideLoader()
+        super.onDestroy()
     }
 }

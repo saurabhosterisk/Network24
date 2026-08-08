@@ -1,0 +1,14 @@
+[
+    {
+        "merged": "com.network24.player.app-mergeReleaseResources-46:/layout-w600dp-v13/activity_dashboard.xml",
+        "source": "com.network24.player.app-main-48:/layout-w600dp/activity_dashboard.xml"
+    },
+    {
+        "merged": "com.network24.player.app-mergeReleaseResources-46:/layout-w600dp-v13/activity_chat_hub.xml",
+        "source": "com.network24.player.app-main-48:/layout-w600dp/activity_chat_hub.xml"
+    },
+    {
+        "merged": "com.network24.player.app-mergeReleaseResources-46:/layout-w600dp-v13/activity_channel_list.xml",
+        "source": "com.network24.player.app-main-48:/layout-w600dp/activity_channel_list.xml"
+    }
+]

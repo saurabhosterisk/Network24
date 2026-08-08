@@ -6,7 +6,6 @@ import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
-import android.view.LayoutInflater
 import android.view.View
 import android.widget.Toast
 import androidx.core.view.GravityCompat
@@ -28,7 +27,9 @@ import com.network24.player.features.live.models.LiveCategory
 import com.network24.player.features.live.repository.LiveRepository
 import com.network24.player.features.live.repository.SyncCallback
 import com.network24.player.features.login.activity.LoginActivity
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlin.math.abs
 
 class LiveCategoryActivity : BaseActivity() {
@@ -43,8 +44,6 @@ class LiveCategoryActivity : BaseActivity() {
     private lateinit var categoryAdapter: CategoryAdapter
     private lateinit var favouriteAdapter: FavouriteCategoryAdapter
 
-    private var loadingDialog: AlertDialog? = null
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityLiveCategoryBinding.inflate(layoutInflater)
@@ -53,6 +52,125 @@ class LiveCategoryActivity : BaseActivity() {
         prefs = PreferenceManager(this)
         repository = LiveRepository(this)
 
+        setupDrawerAndMenu()
+        setupRecyclerViews()
+        setupSearch()
+
+        ensureInitialSyncThenLoad()
+    }
+
+    private fun ensureInitialSyncThenLoad() {
+        lifecycleScope.launch(Dispatchers.IO) {
+            try {
+                val categories = repository.getCategories(
+                    server = prefs.getServer(),
+                    username = prefs.getUsername(),
+                    password = prefs.getPassword(),
+                    forceRefresh = false
+                )
+
+                withContext(Dispatchers.Main) {
+                    if (categories.isNotEmpty()) {
+                        updateUIWithCategories(categories)
+                    } else {
+                        forceRefreshData(isInitialSync = true)
+                    }
+                }
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(this@LiveCategoryActivity, e.message ?: "Initial load failed", Toast.LENGTH_LONG).show()
+                }
+            }
+        }
+    }
+
+    private fun loadCategoriesFromDB() {
+        // Safe: called from Main Thread
+        binding.edtSearch.clearFocus()
+
+        lifecycleScope.launch(Dispatchers.IO) {
+            try {
+                val categories = repository.getCategories(
+                    server = prefs.getServer(),
+                    username = prefs.getUsername(),
+                    password = prefs.getPassword(),
+                    forceRefresh = false
+                )
+
+                withContext(Dispatchers.Main) {
+                    updateUIWithCategories(categories)
+                }
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(this@LiveCategoryActivity, e.message ?: "Unknown Error", Toast.LENGTH_LONG).show()
+                }
+            }
+        }
+    }
+
+    private fun updateUIWithCategories(categories: List<LiveCategory>) {
+        allCategories.clear()
+        allCategories.addAll(categories)
+        categoryAdapter.updateList(allCategories)
+
+        val savedFavIds = getSavedFavourites()
+        favouriteCategories.clear()
+        for (category in allCategories) {
+            if (savedFavIds.contains(category.category_id.toString())) {
+                favouriteCategories.add(category)
+            }
+        }
+
+        binding.txtCategoryCount.text = "${allCategories.size} Categories"
+        favouriteAdapter.updateList(favouriteCategories)
+        updateFavouritesSectionVisibility()
+
+        binding.rvCategories.post {
+            binding.rvCategories.postDelayed({
+                binding.rvCategories.layoutManager?.findViewByPosition(0)?.requestFocus()
+            }, 50)
+        }
+    }
+
+    private var isRefreshing = false
+
+    private fun forceRefreshData(isInitialSync: Boolean = false) {
+        if (isRefreshing) return
+        isRefreshing = true
+
+        val msg = if (isInitialSync) "Downloading Categories for the first time…" else "Refreshing categories & channels…"
+
+        runCallbackSyncWithLoader(
+            loadingMessage = msg,
+            successMessage = "Channels Updated Successfully!"
+        ) { onSuccess, onError ->
+            repository.syncAllData(
+                server = prefs.getServer(),
+                username = prefs.getUsername(),
+                password = prefs.getPassword(),
+                callback = object : SyncCallback {
+                    override fun onSuccess() {
+                        // ✅ FIX: Force UI thread update for callbacks
+                        lifecycleScope.launch(Dispatchers.Main) {
+                            isRefreshing = false
+                            prefs.setLastSyncTime(System.currentTimeMillis())
+                            onSuccess()
+                            loadCategoriesFromDB()
+                        }
+                    }
+                    override fun onError(message: String) {
+                        // ✅ FIX: Force UI thread update for callbacks
+                        lifecycleScope.launch(Dispatchers.Main) {
+                            isRefreshing = false
+                            onError("Failed to refresh: $message")
+                        }
+                    }
+                }
+            )
+        }
+    }
+
+    private fun setupDrawerAndMenu() {
         binding.btnMore.setOnClickListener { openRightDrawer(binding.drawerLayout) }
 
         setupOptionalRightDrawerMenu(
@@ -62,6 +180,7 @@ class LiveCategoryActivity : BaseActivity() {
             when (itemId) {
                 R.id.action_home -> {
                     startActivity(Intent(this, DashboardActivity::class.java))
+                    finish()
                     true
                 }
                 R.id.action_refresh_all -> {
@@ -69,20 +188,7 @@ class LiveCategoryActivity : BaseActivity() {
                     true
                 }
                 R.id.action_refresh_guide -> {
-                    showLoader()
-                    lifecycleScope.launch {
-                        val result = com.network24.player.core.sync.SyncManager(this@LiveCategoryActivity)
-                            .syncFullEpg(force = true)
-
-                        hideLoader()
-
-                        when (result) {
-                            is com.network24.player.core.sync.SyncResult.Success ->
-                                Toast.makeText(this@LiveCategoryActivity, "TV Guide Updated", Toast.LENGTH_SHORT).show()
-                            is com.network24.player.core.sync.SyncResult.Error ->
-                                Toast.makeText(this@LiveCategoryActivity, result.message, Toast.LENGTH_LONG).show()
-                        }
-                    }
+                    refreshTvGuide()
                     true
                 }
                 R.id.action_settings -> true
@@ -114,186 +220,30 @@ class LiveCategoryActivity : BaseActivity() {
                 }
             }
         })
-
-        setupRecyclerViews()
-        setupSearch()
-
-        // ✅ NEW: First-time sync + load
-        ensureInitialSyncThenLoad()
-    }
-
-    override fun onBackPressed() {
-        if (binding.drawerLayout.isDrawerOpen(GravityCompat.END)) {
-            binding.drawerLayout.closeDrawer(GravityCompat.END)
-        } else {
-            super.onBackPressed()
-        }
-    }
-
-    // ----------------------------
-    // Auto First Sync
-    // ----------------------------
-    private fun ensureInitialSyncThenLoad() {
-        lifecycleScope.launch {
-            try {
-                // Try normal load (Memory -> Room)
-                val categories = repository.getCategories(
-                    server = prefs.getServer(),
-                    username = prefs.getUsername(),
-                    password = prefs.getPassword(),
-                    forceRefresh = false
-                )
-
-                // If DB already has data, render normally
-                if (categories.isNotEmpty()) {
-                    allCategories.clear()
-                    allCategories.addAll(categories)
-                    categoryAdapter.updateList(allCategories)
-
-                    val savedFavIds = getSavedFavourites()
-                    favouriteCategories.clear()
-                    for (category in allCategories) {
-                        if (savedFavIds.contains(category.category_id.toString())) {
-                            favouriteCategories.add(category)
-                        }
-                    }
-
-                    binding.txtCategoryCount.text = "${allCategories.size} Categories"
-                    favouriteAdapter.updateList(favouriteCategories)
-                    updateFavouritesSectionVisibility()
-
-                    binding.rvCategories.postDelayed({
-                        binding.rvCategories.layoutManager
-                            ?.findViewByPosition(0)
-                            ?.requestFocus()
-                    }, 50)
-
-                    return@launch
-                }
-
-                // Otherwise: do full sync once (Categories + Channels)
-                showLoader()
-                repository.syncAllData(
-                    server = prefs.getServer(),
-                    username = prefs.getUsername(),
-                    password = prefs.getPassword(),
-                    callback = object : SyncCallback {
-                        override fun onSuccess() {
-                            hideLoader()
-                            prefs.setLastSyncTime(System.currentTimeMillis())
-                            loadCategories(forceRefresh = true)
-                        }
-
-                        override fun onError(message: String) {
-                            hideLoader()
-                            Toast.makeText(
-                                this@LiveCategoryActivity,
-                                "Initial sync failed: $message",
-                                Toast.LENGTH_LONG
-                            ).show()
-                            // fallback attempt
-                            loadCategories(forceRefresh = false)
-                        }
-                    }
-                )
-            } catch (e: Exception) {
-                Toast.makeText(
-                    this@LiveCategoryActivity,
-                    e.message ?: "Initial load failed",
-                    Toast.LENGTH_LONG
-                ).show()
-            }
-        }
-    }
-
-    // ----------------------------
-    // Loader dialog
-    // ----------------------------
-    private fun showLoader() {
-        if (loadingDialog == null) {
-            val view = LayoutInflater.from(this).inflate(R.layout.dialog_loading, null)
-            val builder = AlertDialog.Builder(this)
-            builder.setView(view)
-            builder.setCancelable(false)
-            loadingDialog = builder.create()
-            loadingDialog?.window?.setBackgroundDrawableResource(android.R.color.transparent)
-        }
-        if (!isFinishing && loadingDialog?.isShowing == false) {
-            loadingDialog?.show()
-        }
-    }
-
-    private fun hideLoader() {
-        if (loadingDialog != null && loadingDialog!!.isShowing) {
-            loadingDialog?.dismiss()
-        }
-    }
-
-    // ----------------------------
-    // Manual refresh (already exists)
-    // ----------------------------
-    private fun forceRefreshData() {
-        showLoader()
-        repository.syncAllData(
-            server = prefs.getServer(),
-            username = prefs.getUsername(),
-            password = prefs.getPassword(),
-            callback = object : SyncCallback {
-                override fun onSuccess() {
-                    hideLoader()
-                    prefs.setLastSyncTime(System.currentTimeMillis())
-                    Toast.makeText(
-                        this@LiveCategoryActivity,
-                        "Channels Updated Successfully!!",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                    loadCategories(forceRefresh = true)
-                }
-
-                override fun onError(message: String) {
-                    hideLoader()
-                    Toast.makeText(
-                        this@LiveCategoryActivity,
-                        "Failed to refresh: $message",
-                        Toast.LENGTH_LONG
-                    ).show()
-                }
-            }
-        )
     }
 
     private fun setupRecyclerViews() {
         val columns = if (resources.configuration.smallestScreenWidthDp >= 600) 6 else 3
-
         binding.rvCategories.layoutManager = GridLayoutManager(this, columns)
-        binding.rvFavourite.layoutManager =
-            LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
+        binding.rvFavourite.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
 
         val snapHelper = object : LinearSnapHelper() {
-            override fun calculateDistanceToFinalSnap(
-                layoutManager: RecyclerView.LayoutManager,
-                targetView: View
-            ): IntArray {
+            override fun calculateDistanceToFinalSnap(layoutManager: RecyclerView.LayoutManager, targetView: View): IntArray {
                 val out = IntArray(2)
                 val viewStart = targetView.left - layoutManager.getLeftDecorationWidth(targetView)
                 out[0] = viewStart - layoutManager.paddingLeft
                 out[1] = 0
                 return out
             }
-
             override fun findSnapView(layoutManager: RecyclerView.LayoutManager): View? {
                 if (layoutManager !is LinearLayoutManager) return null
                 val firstVisible = layoutManager.findFirstVisibleItemPosition()
                 val firstView = layoutManager.findViewByPosition(0)
-
                 if (firstVisible == 0 && firstView != null) {
                     val viewStart = firstView.left - layoutManager.getLeftDecorationWidth(firstView)
                     val distance = abs(viewStart - layoutManager.paddingLeft)
-                    if (distance < firstView.width / 2) {
-                        return null
-                    }
+                    if (distance < firstView.width / 2) return null
                 }
-
                 var closestChild: View? = null
                 var closestDistance = Int.MAX_VALUE
                 for (i in 0 until layoutManager.childCount) {
@@ -325,56 +275,6 @@ class LiveCategoryActivity : BaseActivity() {
         binding.rvFavourite.adapter = favouriteAdapter
         binding.rvCategories.setHasFixedSize(true)
         binding.rvFavourite.setHasFixedSize(true)
-
-        Log.d("LIVE_CATEGORY", "Recycler initialized")
-    }
-
-    fun loadCategories(forceRefresh: Boolean = false) {
-        Log.d("LIVE_CATEGORY", "Loading categories...")
-        binding.edtSearch.clearFocus()
-        updateFavouritesSectionVisibility()
-
-        lifecycleScope.launch {
-            try {
-                val categories = repository.getCategories(
-                    server = prefs.getServer(),
-                    username = prefs.getUsername(),
-                    password = prefs.getPassword(),
-                    forceRefresh = forceRefresh
-                )
-
-                allCategories.clear()
-                allCategories.addAll(categories)
-                categoryAdapter.updateList(allCategories)
-
-                val savedFavIds = getSavedFavourites()
-                favouriteCategories.clear()
-                for (category in allCategories) {
-                    if (savedFavIds.contains(category.category_id.toString())) {
-                        favouriteCategories.add(category)
-                    }
-                }
-
-                binding.txtCategoryCount.text = "${allCategories.size} Categories"
-                favouriteAdapter.updateList(favouriteCategories)
-                updateFavouritesSectionVisibility()
-
-                binding.rvCategories.post {
-                    binding.rvCategories.adapter?.notifyDataSetChanged()
-                    binding.rvCategories.postDelayed({
-                        binding.rvCategories.layoutManager
-                            ?.findViewByPosition(0)
-                            ?.requestFocus()
-                    }, 50)
-                }
-            } catch (e: Exception) {
-                Toast.makeText(
-                    this@LiveCategoryActivity,
-                    e.message ?: "Unknown Error",
-                    Toast.LENGTH_LONG
-                ).show()
-            }
-        }
     }
 
     private fun setupSearch() {
@@ -390,7 +290,8 @@ class LiveCategoryActivity : BaseActivity() {
     }
 
     private fun filter(keyword: String) {
-        val filtered = allCategories.filter { it.category_name.contains(keyword, true) }
+        // ✅ FIX: Null safety added for category_name
+        val filtered = allCategories.filter { it.category_name?.contains(keyword, true) ?: false }
         categoryAdapter.updateList(filtered)
     }
 
@@ -401,7 +302,6 @@ class LiveCategoryActivity : BaseActivity() {
         startActivity(intent)
     }
 
-    // --- FAVOURITES SAVE & LOAD LOGIC ---
     private fun getSavedFavourites(): Set<String> {
         val sharedPreferences = getSharedPreferences("AppPreferences", MODE_PRIVATE)
         return sharedPreferences.getStringSet("fav_categories", emptySet()) ?: emptySet()
@@ -421,6 +321,7 @@ class LiveCategoryActivity : BaseActivity() {
         }
         currentFavs.add(catId)
         saveFavouritesList(currentFavs)
+
         favouriteCategories.add(category)
         favouriteAdapter.updateList(favouriteCategories)
         updateFavouritesSectionVisibility()
@@ -432,6 +333,7 @@ class LiveCategoryActivity : BaseActivity() {
         val catId = category.category_id.toString()
         currentFavs.remove(catId)
         saveFavouritesList(currentFavs)
+
         favouriteCategories.removeAll { it.category_id.toString() == catId }
         favouriteAdapter.updateList(favouriteCategories)
         updateFavouritesSectionVisibility()
@@ -444,8 +346,11 @@ class LiveCategoryActivity : BaseActivity() {
         binding.txtFavouriteCount.text = "${favouriteCategories.size} Favourites"
     }
 
-    override fun onDestroy() {
-        hideLoader()
-        super.onDestroy()
+    override fun onBackPressed() {
+        if (binding.drawerLayout.isDrawerOpen(GravityCompat.END)) {
+            closeRightDrawer(binding.drawerLayout)
+        } else {
+            super.onBackPressed()
+        }
     }
 }

@@ -1,114 +1,110 @@
 [
     {
-        "merged": "C:\\Users\\saura\\.gradle\\daemon\\9.2.1\\com.network24.player.app-mergeDebugResources-46:\\layout\\dialog_loading.xml",
-        "source": "C:\\Users\\saura\\.gradle\\daemon\\9.2.1\\com.network24.player.app-main-49:\\layout\\dialog_loading.xml"
+        "merged": "com.network24.player.app-mergeDebugResources-46:/layout/item_chat_message_left.xml",
+        "source": "com.network24.player.app-main-49:/layout/item_chat_message_left.xml"
     },
     {
-        "merged": "C:\\Users\\saura\\.gradle\\daemon\\9.2.1\\com.network24.player.app-mergeDebugResources-46:\\layout\\item_chat_room.xml",
-        "source": "C:\\Users\\saura\\.gradle\\daemon\\9.2.1\\com.network24.player.app-main-49:\\layout\\item_chat_room.xml"
+        "merged": "com.network24.player.app-mergeDebugResources-46:/layout/item_channel_drawer.xml",
+        "source": "com.network24.player.app-main-49:/layout/item_channel_drawer.xml"
     },
     {
-        "merged": "C:\\Users\\saura\\.gradle\\daemon\\9.2.1\\com.network24.player.app-mergeDebugResources-46:\\layout\\item_category.xml",
-        "source": "C:\\Users\\saura\\.gradle\\daemon\\9.2.1\\com.network24.player.app-main-49:\\layout\\item_category.xml"
+        "merged": "com.network24.player.app-mergeDebugResources-46:/layout/dialog_stream_info.xml",
+        "source": "com.network24.player.app-main-49:/layout/dialog_stream_info.xml"
     },
     {
-        "merged": "C:\\Users\\saura\\.gradle\\daemon\\9.2.1\\com.network24.player.app-mergeDebugResources-46:\\layout\\item_playback_info.xml",
-        "source": "C:\\Users\\saura\\.gradle\\daemon\\9.2.1\\com.network24.player.app-main-49:\\layout\\item_playback_info.xml"
+        "merged": "com.network24.player.app-mergeDebugResources-46:/layout/activity_channel_list.xml",
+        "source": "com.network24.player.app-main-49:/layout/activity_channel_list.xml"
     },
     {
-        "merged": "C:\\Users\\saura\\.gradle\\daemon\\9.2.1\\com.network24.player.app-mergeDebugResources-46:\\layout\\activity_dashboard.xml",
-        "source": "C:\\Users\\saura\\.gradle\\daemon\\9.2.1\\com.network24.player.app-main-49:\\layout\\activity_dashboard.xml"
+        "merged": "com.network24.player.app-mergeDebugResources-46:/layout/layout_live_header.xml",
+        "source": "com.network24.player.app-main-49:/layout/layout_live_header.xml"
+    },
+    {
+        "merged": "com.network24.player.app-mergeDebugResources-46:/layout/activity_splash.xml",
+        "source": "com.network24.player.app-main-49:/layout/activity_splash.xml"
     },
     {
         "merged": "com.network24.player.app-mergeDebugResources-46:/layout/dialog_loading.xml",
         "source": "com.network24.player.app-main-49:/layout/dialog_loading.xml"
     },
     {
-        "merged": "C:\\Users\\saura\\.gradle\\daemon\\9.2.1\\com.network24.player.app-mergeDebugResources-46:\\layout\\item_chat_message_right.xml",
-        "source": "C:\\Users\\saura\\.gradle\\daemon\\9.2.1\\com.network24.player.app-main-49:\\layout\\item_chat_message_right.xml"
+        "merged": "com.network24.player.app-mergeDebugResources-46:/layout/activity_live_category.xml",
+        "source": "com.network24.player.app-main-49:/layout/activity_live_category.xml"
     },
     {
-        "merged": "C:\\Users\\saura\\.gradle\\daemon\\9.2.1\\com.network24.player.app-mergeDebugResources-46:\\layout\\layout_live_header.xml",
-        "source": "C:\\Users\\saura\\.gradle\\daemon\\9.2.1\\com.network24.player.app-main-49:\\layout\\layout_live_header.xml"
+        "merged": "com.network24.player.app-mergeDebugResources-46:/layout/channel_drawer.xml",
+        "source": "com.network24.player.app-main-49:/layout/channel_drawer.xml"
     },
     {
-        "merged": "C:\\Users\\saura\\.gradle\\daemon\\9.2.1\\com.network24.player.app-mergeDebugResources-46:\\layout\\top_menu_overlay.xml",
-        "source": "C:\\Users\\saura\\.gradle\\daemon\\9.2.1\\com.network24.player.app-main-49:\\layout\\top_menu_overlay.xml"
+        "merged": "com.network24.player.app-mergeDebugResources-46:/layout/activity_favourite_channels.xml",
+        "source": "com.network24.player.app-main-49:/layout/activity_favourite_channels.xml"
     },
     {
-        "merged": "C:\\Users\\saura\\.gradle\\daemon\\9.2.1\\com.network24.player.app-mergeDebugResources-46:\\layout\\activity_login.xml",
-        "source": "C:\\Users\\saura\\.gradle\\daemon\\9.2.1\\com.network24.player.app-main-49:\\layout\\activity_login.xml"
+        "merged": "com.network24.player.app-mergeDebugResources-46:/layout/top_menu_item.xml",
+        "source": "com.network24.player.app-main-49:/layout/top_menu_item.xml"
     },
     {
-        "merged": "C:\\Users\\saura\\.gradle\\daemon\\9.2.1\\com.network24.player.app-mergeDebugResources-46:\\layout\\channel_drawer.xml",
-        "source": "C:\\Users\\saura\\.gradle\\daemon\\9.2.1\\com.network24.player.app-main-49:\\layout\\channel_drawer.xml"
+        "merged": "com.network24.player.app-mergeDebugResources-46:/layout/activity_chat_hub.xml",
+        "source": "com.network24.player.app-main-49:/layout/activity_chat_hub.xml"
     },
     {
-        "merged": "C:\\Users\\saura\\.gradle\\daemon\\9.2.1\\com.network24.player.app-mergeDebugResources-46:\\layout\\layout_favourite_categories.xml",
-        "source": "C:\\Users\\saura\\.gradle\\daemon\\9.2.1\\com.network24.player.app-main-49:\\layout\\layout_favourite_categories.xml"
+        "merged": "com.network24.player.app-mergeDebugResources-46:/layout/activity_dashboard.xml",
+        "source": "com.network24.player.app-main-49:/layout/activity_dashboard.xml"
     },
     {
-        "merged": "C:\\Users\\saura\\.gradle\\daemon\\9.2.1\\com.network24.player.app-mergeDebugResources-46:\\layout\\activity_splash.xml",
-        "source": "C:\\Users\\saura\\.gradle\\daemon\\9.2.1\\com.network24.player.app-main-49:\\layout\\activity_splash.xml"
+        "merged": "com.network24.player.app-mergeDebugResources-46:/layout/activity_login.xml",
+        "source": "com.network24.player.app-main-49:/layout/activity_login.xml"
     },
     {
-        "merged": "C:\\Users\\saura\\.gradle\\daemon\\9.2.1\\com.network24.player.app-mergeDebugResources-46:\\layout\\playback_info_drawer.xml",
-        "source": "C:\\Users\\saura\\.gradle\\daemon\\9.2.1\\com.network24.player.app-main-49:\\layout\\playback_info_drawer.xml"
+        "merged": "com.network24.player.app-mergeDebugResources-46:/layout/item_channel.xml",
+        "source": "com.network24.player.app-main-49:/layout/item_channel.xml"
     },
     {
-        "merged": "C:\\Users\\saura\\.gradle\\daemon\\9.2.1\\com.network24.player.app-mergeDebugResources-46:\\layout\\activity_live_category.xml",
-        "source": "C:\\Users\\saura\\.gradle\\daemon\\9.2.1\\com.network24.player.app-main-49:\\layout\\activity_live_category.xml"
+        "merged": "com.network24.player.app-mergeDebugResources-46:/layout/item_chat_message.xml",
+        "source": "com.network24.player.app-main-49:/layout/item_chat_message.xml"
     },
     {
-        "merged": "C:\\Users\\saura\\.gradle\\daemon\\9.2.1\\com.network24.player.app-mergeDebugResources-46:\\layout\\activity_channel_list.xml",
-        "source": "C:\\Users\\saura\\.gradle\\daemon\\9.2.1\\com.network24.player.app-main-49:\\layout\\activity_channel_list.xml"
+        "merged": "com.network24.player.app-mergeDebugResources-46:/layout/item_chat_room_chip.xml",
+        "source": "com.network24.player.app-main-49:/layout/item_chat_room_chip.xml"
     },
     {
-        "merged": "C:\\Users\\saura\\.gradle\\daemon\\9.2.1\\com.network24.player.app-mergeDebugResources-46:\\layout\\item_chat_room_chip.xml",
-        "source": "C:\\Users\\saura\\.gradle\\daemon\\9.2.1\\com.network24.player.app-main-49:\\layout\\item_chat_room_chip.xml"
+        "merged": "com.network24.player.app-mergeDebugResources-46:/layout/item_favourite_category.xml",
+        "source": "com.network24.player.app-main-49:/layout/item_favourite_category.xml"
     },
     {
-        "merged": "C:\\Users\\saura\\.gradle\\daemon\\9.2.1\\com.network24.player.app-mergeDebugResources-46:\\layout\\top_menu_item.xml",
-        "source": "C:\\Users\\saura\\.gradle\\daemon\\9.2.1\\com.network24.player.app-main-49:\\layout\\top_menu_item.xml"
+        "merged": "com.network24.player.app-mergeDebugResources-46:/layout/layout_all_categories.xml",
+        "source": "com.network24.player.app-main-49:/layout/layout_all_categories.xml"
     },
     {
-        "merged": "C:\\Users\\saura\\.gradle\\daemon\\9.2.1\\com.network24.player.app-mergeDebugResources-46:\\layout\\dialog_stream_info.xml",
-        "source": "C:\\Users\\saura\\.gradle\\daemon\\9.2.1\\com.network24.player.app-main-49:\\layout\\dialog_stream_info.xml"
+        "merged": "com.network24.player.app-mergeDebugResources-46:/layout/item_playback_info.xml",
+        "source": "com.network24.player.app-main-49:/layout/item_playback_info.xml"
     },
     {
-        "merged": "C:\\Users\\saura\\.gradle\\daemon\\9.2.1\\com.network24.player.app-mergeDebugResources-46:\\layout\\activity_chat_hub.xml",
-        "source": "C:\\Users\\saura\\.gradle\\daemon\\9.2.1\\com.network24.player.app-main-49:\\layout\\activity_chat_hub.xml"
+        "merged": "com.network24.player.app-mergeDebugResources-46:/layout/item_category.xml",
+        "source": "com.network24.player.app-main-49:/layout/item_category.xml"
     },
     {
-        "merged": "C:\\Users\\saura\\.gradle\\daemon\\9.2.1\\com.network24.player.app-mergeDebugResources-46:\\layout\\item_favourite_category.xml",
-        "source": "C:\\Users\\saura\\.gradle\\daemon\\9.2.1\\com.network24.player.app-main-49:\\layout\\item_favourite_category.xml"
+        "merged": "com.network24.player.app-mergeDebugResources-46:/layout/item_chat_room.xml",
+        "source": "com.network24.player.app-main-49:/layout/item_chat_room.xml"
     },
     {
-        "merged": "C:\\Users\\saura\\.gradle\\daemon\\9.2.1\\com.network24.player.app-mergeDebugResources-46:\\layout\\item_channel_drawer.xml",
-        "source": "C:\\Users\\saura\\.gradle\\daemon\\9.2.1\\com.network24.player.app-main-49:\\layout\\item_channel_drawer.xml"
+        "merged": "com.network24.player.app-mergeDebugResources-46:/layout/layout_favourite_categories.xml",
+        "source": "com.network24.player.app-main-49:/layout/layout_favourite_categories.xml"
     },
     {
-        "merged": "C:\\Users\\saura\\.gradle\\daemon\\9.2.1\\com.network24.player.app-mergeDebugResources-46:\\layout\\activity_player.xml",
-        "source": "C:\\Users\\saura\\.gradle\\daemon\\9.2.1\\com.network24.player.app-main-49:\\layout\\activity_player.xml"
+        "merged": "com.network24.player.app-mergeDebugResources-46:/layout/activity_player.xml",
+        "source": "com.network24.player.app-main-49:/layout/activity_player.xml"
     },
     {
-        "merged": "C:\\Users\\saura\\.gradle\\daemon\\9.2.1\\com.network24.player.app-mergeDebugResources-46:\\layout\\layout_all_categories.xml",
-        "source": "C:\\Users\\saura\\.gradle\\daemon\\9.2.1\\com.network24.player.app-main-49:\\layout\\layout_all_categories.xml"
+        "merged": "com.network24.player.app-mergeDebugResources-46:/layout/item_chat_message_right.xml",
+        "source": "com.network24.player.app-main-49:/layout/item_chat_message_right.xml"
     },
     {
-        "merged": "C:\\Users\\saura\\.gradle\\daemon\\9.2.1\\com.network24.player.app-mergeDebugResources-46:\\layout\\item_chat_message_left.xml",
-        "source": "C:\\Users\\saura\\.gradle\\daemon\\9.2.1\\com.network24.player.app-main-49:\\layout\\item_chat_message_left.xml"
+        "merged": "com.network24.player.app-mergeDebugResources-46:/layout/playback_info_drawer.xml",
+        "source": "com.network24.player.app-main-49:/layout/playback_info_drawer.xml"
     },
     {
-        "merged": "C:\\Users\\saura\\.gradle\\daemon\\9.2.1\\com.network24.player.app-mergeDebugResources-46:\\layout\\item_channel.xml",
-        "source": "C:\\Users\\saura\\.gradle\\daemon\\9.2.1\\com.network24.player.app-main-49:\\layout\\item_channel.xml"
-    },
-    {
-        "merged": "C:\\Users\\saura\\.gradle\\daemon\\9.2.1\\com.network24.player.app-mergeDebugResources-46:\\layout\\item_chat_message.xml",
-        "source": "C:\\Users\\saura\\.gradle\\daemon\\9.2.1\\com.network24.player.app-main-49:\\layout\\item_chat_message.xml"
-    },
-    {
-        "merged": "C:\\Users\\saura\\.gradle\\daemon\\9.2.1\\com.network24.player.app-mergeDebugResources-46:\\layout\\activity_favourite_channels.xml",
-        "source": "C:\\Users\\saura\\.gradle\\daemon\\9.2.1\\com.network24.player.app-main-49:\\layout\\activity_favourite_channels.xml"
+        "merged": "com.network24.player.app-mergeDebugResources-46:/layout/top_menu_overlay.xml",
+        "source": "com.network24.player.app-main-49:/layout/top_menu_overlay.xml"
     }
 ]
