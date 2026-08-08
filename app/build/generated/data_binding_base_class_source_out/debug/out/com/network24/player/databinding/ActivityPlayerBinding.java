@@ -4,6 +4,7 @@ package com.network24.player.databinding;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
@@ -43,6 +44,9 @@ public final class ActivityPlayerBinding implements ViewBinding {
 
   @NonNull
   public final ImageButton btnPrev;
+
+  @NonNull
+  public final Button btnReportChannel;
 
   @NonNull
   public final ImageButton btnSubtitle;
@@ -96,12 +100,13 @@ public final class ActivityPlayerBinding implements ViewBinding {
       @NonNull LinearLayout bottomOverlay, @NonNull ImageButton btnAspect,
       @NonNull ImageButton btnGrid, @NonNull ImageButton btnInfo, @NonNull ImageButton btnNext,
       @NonNull ImageButton btnPlayPause, @NonNull ImageButton btnPrev,
-      @NonNull ImageButton btnSubtitle, @NonNull LinearLayout controlsRow,
-      @NonNull View epgProgress, @NonNull View epgTrack, @NonNull TextView labelNext,
-      @NonNull TextView labelNow, @NonNull PlayerView playerView, @NonNull ProgressBar progressBar,
-      @NonNull ConstraintLayout root, @NonNull View topTint, @NonNull TextView txtChannelTitle,
-      @NonNull TextView txtNextTime, @NonNull TextView txtNextTitle, @NonNull TextView txtNowTime,
-      @NonNull TextView txtNowTitle, @NonNull TextView txtPlayerError) {
+      @NonNull Button btnReportChannel, @NonNull ImageButton btnSubtitle,
+      @NonNull LinearLayout controlsRow, @NonNull View epgProgress, @NonNull View epgTrack,
+      @NonNull TextView labelNext, @NonNull TextView labelNow, @NonNull PlayerView playerView,
+      @NonNull ProgressBar progressBar, @NonNull ConstraintLayout root, @NonNull View topTint,
+      @NonNull TextView txtChannelTitle, @NonNull TextView txtNextTime,
+      @NonNull TextView txtNextTitle, @NonNull TextView txtNowTime, @NonNull TextView txtNowTitle,
+      @NonNull TextView txtPlayerError) {
     this.rootView = rootView;
     this.bottomOverlay = bottomOverlay;
     this.btnAspect = btnAspect;
@@ -110,6 +115,7 @@ public final class ActivityPlayerBinding implements ViewBinding {
     this.btnNext = btnNext;
     this.btnPlayPause = btnPlayPause;
     this.btnPrev = btnPrev;
+    this.btnReportChannel = btnReportChannel;
     this.btnSubtitle = btnSubtitle;
     this.controlsRow = controlsRow;
     this.epgProgress = epgProgress;
@@ -194,6 +200,12 @@ public final class ActivityPlayerBinding implements ViewBinding {
       id = R.id.btnPrev;
       ImageButton btnPrev = ViewBindings.findChildViewById(rootView, id);
       if (btnPrev == null) {
+        break missingId;
+      }
+
+      id = R.id.btnReportChannel;
+      Button btnReportChannel = ViewBindings.findChildViewById(rootView, id);
+      if (btnReportChannel == null) {
         break missingId;
       }
 
@@ -290,9 +302,10 @@ public final class ActivityPlayerBinding implements ViewBinding {
       }
 
       return new ActivityPlayerBinding((ConstraintLayout) rootView, bottomOverlay, btnAspect,
-          btnGrid, btnInfo, btnNext, btnPlayPause, btnPrev, btnSubtitle, controlsRow, epgProgress,
-          epgTrack, labelNext, labelNow, playerView, progressBar, root, topTint, txtChannelTitle,
-          txtNextTime, txtNextTitle, txtNowTime, txtNowTitle, txtPlayerError);
+          btnGrid, btnInfo, btnNext, btnPlayPause, btnPrev, btnReportChannel, btnSubtitle,
+          controlsRow, epgProgress, epgTrack, labelNext, labelNow, playerView, progressBar, root,
+          topTint, txtChannelTitle, txtNextTime, txtNextTitle, txtNowTime, txtNowTitle,
+          txtPlayerError);
     }
     String missingId = rootView.getResources().getResourceName(id);
     throw new NullPointerException("Missing required view with ID: ".concat(missingId));

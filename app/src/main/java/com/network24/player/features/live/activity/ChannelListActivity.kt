@@ -43,19 +43,15 @@ class ChannelListActivity : BaseActivity() {
     private lateinit var repository: LiveRepository
     private lateinit var prefs: PreferenceManager
     private lateinit var favRepo: FavoritesRepository
-
     private lateinit var adapter: ChannelAdapter
     private var isGoingToFullscreen = false
     private var loadingDialog: AlertDialog? = null
-
     private var retryCount = 0
     private val MAX_RETRIES = 1
     private var retryJob: Job? = null
-
     private val isTouchDevice by lazy {
         !packageManager.hasSystemFeature(PackageManager.FEATURE_LEANBACK)
     }
-
     private var previewPosition = -1
     private val allChannels = mutableListOf<LiveChannel>()
     private val channelList = mutableListOf<LiveChannel>()
@@ -65,6 +61,13 @@ class ChannelListActivity : BaseActivity() {
         override fun onPlaybackStateChanged(playbackState: Int) {
             binding.progressLoading.visibility =
                 if (playbackState == Player.STATE_BUFFERING) View.VISIBLE else View.GONE
+
+            // ✅ Hide error and report button when player is ready
+            if (playbackState == Player.STATE_READY) {
+                retryCount = 0
+                binding.txtPlayerError.visibility = View.GONE
+                binding.btnReportChannel.visibility = View.GONE
+            }
         }
 
         override fun onPlayerError(error: PlaybackException) {
@@ -90,6 +93,12 @@ class ChannelListActivity : BaseActivity() {
                 binding.progressLoading.visibility = View.GONE
                 binding.txtPlayerError.visibility = View.VISIBLE
                 binding.txtNowTitle.text = "Playback Failed"
+
+                // ✅ Show the report button when max retries fail
+                binding.btnReportChannel.visibility = View.VISIBLE
+                binding.btnReportChannel.post {
+                    binding.btnReportChannel.requestFocus() // Request focus for Android TV
+                }
             }
         }
     }
@@ -98,21 +107,20 @@ class ChannelListActivity : BaseActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityChannelListBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
         val db = DatabaseProvider.get(this)
         favRepo = FavoritesRepository(db.favoritesDao(), FirebaseFirestore.getInstance())
         prefs = PreferenceManager(this)
         repository = LiveRepository(this)
-
         categoryId = intent.getStringExtra("category_id") ?: ""
         binding.txtCategoryName.text = intent.getStringExtra("category_name") ?: "Live TV"
-
         binding.btnBack.setOnClickListener { finish() }
-
         binding.playerView.setShowSubtitleButton(false)
         binding.playerView.subtitleView?.visibility = View.GONE
 
         setupDrawerAndMenu()
+
+        // ✅ Initialize Report Button Click Logic
+        setupReportButton()
 
         binding.playerView.setOnClickListener {
             if (isTouchDevice && previewPosition != -1 && channelList.isNotEmpty()) {
@@ -120,10 +128,8 @@ class ChannelListActivity : BaseActivity() {
                 openFullscreen(currentChannel, previewPosition)
             }
         }
-
         setupRecycler()
         setupSearch()
-
         // Room Flow observation (Safe on Main Thread)
         lifecycleScope.launch {
             db.favoritesDao().observeByType("LIVE_CHANNEL").collect { favs ->
@@ -131,8 +137,48 @@ class ChannelListActivity : BaseActivity() {
                 adapter.updateFavourites(favIds)
             }
         }
-
         ensureInitialSyncThenLoad()
+    }
+
+    // ✅ NEW: Report Button Logic matching the working ChatHub format
+    private fun setupReportButton() {
+        binding.btnReportChannel.visibility = View.GONE
+        binding.btnReportChannel.setOnClickListener {
+            if (previewPosition == -1 || channelList.isEmpty()) return@setOnClickListener
+
+            val currentChannel = channelList[previewPosition]
+            val channelName = currentChannel.name ?: "Unknown Channel"
+            val username = prefs.getUsername()
+
+            val alertMessage = "🚨 System Alert: $username reported that the channel '$channelName' is currently down."
+
+            val chatData = hashMapOf(
+                "senderId" to "system_bot",
+                "senderName" to "System",
+                "text" to alertMessage,
+                "ts" to com.google.firebase.firestore.FieldValue.serverTimestamp()
+            )
+
+            val firestore = FirebaseFirestore.getInstance()
+
+            // Hide immediately to prevent spam clicks
+            binding.btnReportChannel.visibility = View.GONE
+            binding.txtPlayerError.text = "Sending report..."
+
+            firestore.collection("rooms")
+                .document("general")
+                .collection("messages")
+                .add(chatData)
+                .addOnSuccessListener {
+                    binding.txtPlayerError.text = "Channel reported. Our team will look into it."
+                    Toast.makeText(this, "Report sent to General Chat!", Toast.LENGTH_SHORT).show()
+                }
+                .addOnFailureListener { exception ->
+                    binding.btnReportChannel.visibility = View.VISIBLE
+                    binding.txtPlayerError.text = "Failed to send report."
+                    Toast.makeText(this, "Error: ${exception.message}", Toast.LENGTH_LONG).show()
+                }
+        }
     }
 
     private fun ensureInitialSyncThenLoad() {
@@ -146,7 +192,6 @@ class ChannelListActivity : BaseActivity() {
                     categoryId = categoryId,
                     forceRefresh = false
                 )
-
                 if (channels.isNotEmpty()) {
                     applyChannelsToUi(channels)
                 } else {
@@ -161,7 +206,6 @@ class ChannelListActivity : BaseActivity() {
     private fun loadChannels(forceRefresh: Boolean = false) {
         binding.edtSearch.text?.clear()
         binding.edtSearch.clearFocus()
-
         lifecycleScope.launch {
             try {
                 val channels = repository.getChannels(
@@ -184,18 +228,14 @@ class ChannelListActivity : BaseActivity() {
         channelList.clear()
         channelList.addAll(channels)
         adapter.updateData(channelList)
-
         if (channelList.isEmpty()) return
-
         val targetPos = if (PlayerState.currentPosition in channelList.indices) {
             PlayerState.currentPosition
         } else 0
-
         previewPosition = targetPos
         adapter.setPlaying(targetPos)
         showPreview(channelList[targetPos])
         loadProgramGuide(channelList[targetPos])
-
         if (!isTouchDevice) {
             binding.rvChannels.post {
                 binding.rvChannels.findViewHolderForAdapterPosition(targetPos)?.itemView?.requestFocus()
@@ -208,9 +248,7 @@ class ChannelListActivity : BaseActivity() {
     private fun forceRefreshData(isInitialSync: Boolean = false) {
         if (isRefreshing) return
         isRefreshing = true
-
         val msg = if (isInitialSync) "Downloading Channels for the first time…" else "Refreshing channels & categories…"
-
         runCallbackSyncWithLoader(
             loadingMessage = msg,
             successMessage = "Channels Refreshed Successfully!"
@@ -237,7 +275,6 @@ class ChannelListActivity : BaseActivity() {
 
     private fun setupDrawerAndMenu() {
         binding.btnMore.setOnClickListener { openRightDrawer(binding.drawerLayout) }
-
         setupOptionalRightDrawerMenu(binding.drawerLayout, binding.rightNav) { itemId ->
             when (itemId) {
                 R.id.action_home -> {
@@ -258,7 +295,6 @@ class ChannelListActivity : BaseActivity() {
                         try {
                             DatabaseProvider.get(this@ChannelListActivity).favoritesDao().clearAll()
                         } catch (_: Exception) {}
-
                         prefs.clear()
                         startActivity(Intent(this@ChannelListActivity, LoginActivity::class.java))
                         finishAffinity()
@@ -268,7 +304,6 @@ class ChannelListActivity : BaseActivity() {
                 else -> false
             }
         }
-
         binding.drawerLayout.addDrawerListener(object : DrawerLayout.SimpleDrawerListener() {
             override fun onDrawerOpened(drawerView: View) {
                 if (drawerView.id == binding.rightNav.id) {
@@ -330,7 +365,6 @@ class ChannelListActivity : BaseActivity() {
         channelList.clear()
         channelList.addAll(filtered)
         adapter.updateData(channelList)
-
         if (previewPosition != -1 && allChannels.isNotEmpty() && channelList.isNotEmpty()) {
             val currentlyPlayingChannel = allChannels[previewPosition]
             val newPosition = channelList.indexOf(currentlyPlayingChannel)
@@ -344,10 +378,10 @@ class ChannelListActivity : BaseActivity() {
         retryJob?.cancel()
         retryCount = 0
         binding.txtPlayerError.visibility = View.GONE
+        binding.btnReportChannel.visibility = View.GONE // ✅ Hide button immediately when new channel loads
 
         val streamUrl = buildStreamUrl(channel)
         PlayerManager.play(this, binding.playerView, streamUrl)
-
         binding.txtOverlayChannel.text = channel.name ?: ""
         binding.txtOverlayProgram.text = "Loading TV Guide..."
         binding.txtNowTitle.text = "Loading TV Guide..."
@@ -361,7 +395,6 @@ class ChannelListActivity : BaseActivity() {
         PlayerState.channels.clear()
         PlayerState.channels.addAll(channelList)
         PlayerState.currentPosition = position
-
         val streamUrl = buildStreamUrl(channel)
         PlayerManager.play(this, binding.playerView, streamUrl)
         startActivity(Intent(this, PlayerActivity::class.java))
@@ -376,11 +409,9 @@ class ChannelListActivity : BaseActivity() {
 
     private fun loadProgramGuide(channel: LiveChannel) {
         val epgId = channel.epg_channel_id ?: channel.stream_id?.toString() ?: return
-
         lifecycleScope.launch {
             try {
                 val (nowEpg, nextEpg) = repository.getNowNextEpg(epgId)
-
                 if (nowEpg != null) {
                     binding.txtNowTitle.text = nowEpg.title ?: "No Program Info"
                     binding.txtNowTime.text = "${formatTime(nowEpg.startTimestamp)} - ${formatTime(nowEpg.stopTimestamp)}"
@@ -390,7 +421,6 @@ class ChannelListActivity : BaseActivity() {
                     binding.txtNowTime.text = ""
                     binding.txtOverlayProgram.text = ""
                 }
-
                 if (nextEpg != null) {
                     binding.txtNextTitle.text = nextEpg.title ?: ""
                     binding.txtNextTime.text = "${formatTime(nextEpg.startTimestamp)} - ${formatTime(nextEpg.stopTimestamp)}"
@@ -421,11 +451,9 @@ class ChannelListActivity : BaseActivity() {
     private fun toggleChannelFavourite(channel: LiveChannel) {
         val streamId = channel.stream_id?.toString() ?: return
         val userId = prefs.getUsername()
-
         lifecycleScope.launch {
             val key = "LIVE_CHANNEL:$streamId"
             val isFav = DatabaseProvider.get(this@ChannelListActivity).favoritesDao().getAll().any { it.key == key }
-
             if (isFav) {
                 favRepo.removeFavorite(userId, "LIVE_CHANNEL", streamId)
                 Toast.makeText(this@ChannelListActivity, "${channel.name} removed from Favourites", Toast.LENGTH_SHORT).show()
@@ -439,15 +467,12 @@ class ChannelListActivity : BaseActivity() {
     private fun confirmToggleFavourite(channel: LiveChannel) {
         val streamId = channel.stream_id?.toString() ?: return
         val name = channel.name ?: "this channel"
-
         lifecycleScope.launch {
             val key = "LIVE_CHANNEL:$streamId"
             val isFav = DatabaseProvider.get(this@ChannelListActivity).favoritesDao().getAll().any { it.key == key }
-
             val title = if (isFav) "Remove Favourite" else "Add Favourite"
             val message = if (isFav) "Do you want to remove \"$name\" from favourites?" else "Do you want to add \"$name\" to favourites?"
             val positiveText = if (isFav) "Remove" else "Add"
-
             androidx.appcompat.app.AlertDialog.Builder(this@ChannelListActivity)
                 .setTitle(title)
                 .setMessage(message)
@@ -476,22 +501,25 @@ class ChannelListActivity : BaseActivity() {
         PlayerManager.attach(this, binding.playerView)
         PlayerManager.resume()
         binding.playerView.player?.addListener(playerListener)
-
         val player = binding.playerView.player
         if (player?.playbackState == Player.STATE_READY) {
             binding.progressLoading.visibility = View.GONE
             binding.txtPlayerError.visibility = View.GONE
+            binding.btnReportChannel.visibility = View.GONE
         } else if (player?.playbackState == Player.STATE_BUFFERING) {
             binding.progressLoading.visibility = View.VISIBLE
             binding.txtPlayerError.visibility = View.GONE
         } else if (player?.playerError != null) {
             binding.progressLoading.visibility = View.GONE
             binding.txtPlayerError.visibility = View.VISIBLE
+
+            // Show report button if error state is persisted
+            binding.btnReportChannel.visibility = View.VISIBLE
+
             val finalError = "Sorry, This video can not be played. Please try again or pick another video."
             binding.txtNowTitle.text = finalError
             binding.txtOverlayProgram.text = finalError
         }
-
         registerEpgRefresh {
             if (previewPosition != -1 && channelList.isNotEmpty()) {
                 loadProgramGuide(channelList[previewPosition])
@@ -504,7 +532,6 @@ class ChannelListActivity : BaseActivity() {
         binding.playerView.player?.removeListener(playerListener)
         if (!isGoingToFullscreen) PlayerManager.pause()
         PlayerManager.detach(binding.playerView)
-
         unregisterEpgRefresh()
     }
 

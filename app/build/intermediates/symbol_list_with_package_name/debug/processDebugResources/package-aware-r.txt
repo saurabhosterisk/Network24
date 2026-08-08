@@ -4764,6 +4764,7 @@ id btnNext
 id btnPlayPause
 id btnPrev
 id btnRenew
+id btnReportChannel
 id btnSend
 id btnSubtitle
 id buttonPanel

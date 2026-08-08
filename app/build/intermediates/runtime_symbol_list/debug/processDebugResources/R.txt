@@ -4763,6 +4763,7 @@ int id btnNext 0x7f0a007d
 int id btnPlayPause 0x7f0a007e
 int id btnPrev 0x7f0a007f
 int id btnRenew 0x7f0a0080
+int id btnReportChannel 0x7f0a02e5
 int id btnSend 0x7f0a0081
 int id btnSubtitle 0x7f0a0082
 int id buttonPanel 0x7f0a0083

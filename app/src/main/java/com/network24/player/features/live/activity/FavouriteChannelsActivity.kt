@@ -35,6 +35,8 @@ import com.network24.player.features.player.state.PlayerState
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.util.Locale
 
 class FavouriteChannelsActivity : BaseActivity() {
 
@@ -42,29 +44,31 @@ class FavouriteChannelsActivity : BaseActivity() {
     private lateinit var repository: LiveRepository
     private lateinit var prefs: PreferenceManager
     private lateinit var favRepo: FavoritesRepository
-
     private lateinit var adapter: ChannelAdapter
     private var isGoingToFullscreen = false
     private var loadingDialog: AlertDialog? = null
-
     private var retryCount = 0
     private val MAX_RETRIES = 3
     private var retryJob: Job? = null
-
     private val isTouchDevice by lazy {
         !packageManager.hasSystemFeature(PackageManager.FEATURE_LEANBACK)
     }
-
     private var previewPosition = -1
     private val allChannels = mutableListOf<LiveChannel>()
     private val channelList = mutableListOf<LiveChannel>()
-
     private var currentFavIds: Set<String> = emptySet()
 
     private val playerListener = object : Player.Listener {
         override fun onPlaybackStateChanged(playbackState: Int) {
             binding.progressLoading.visibility =
                 if (playbackState == Player.STATE_BUFFERING) View.VISIBLE else View.GONE
+
+            // ✅ Hide error and report button when player is ready
+            if (playbackState == Player.STATE_READY) {
+                retryCount = 0
+                binding.txtPlayerError.visibility = View.GONE
+                binding.btnReportChannel.visibility = View.GONE
+            }
         }
 
         override fun onPlayerError(error: PlaybackException) {
@@ -93,6 +97,12 @@ class FavouriteChannelsActivity : BaseActivity() {
                 binding.txtNowTitle.text = "Playback Failed"
                 binding.txtOverlayProgram.text = finalError
                 Toast.makeText(this@FavouriteChannelsActivity, finalError, Toast.LENGTH_LONG).show()
+
+                // ✅ Show the report button when max retries fail
+                binding.btnReportChannel.visibility = View.VISIBLE
+                binding.btnReportChannel.post {
+                    binding.btnReportChannel.requestFocus() // Request focus for Android TV
+                }
             }
         }
     }
@@ -101,27 +111,25 @@ class FavouriteChannelsActivity : BaseActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityFavouriteChannelsBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
         prefs = PreferenceManager(this)
         repository = LiveRepository(this)
         val db = DatabaseProvider.get(this)
         favRepo = FavoritesRepository(db.favoritesDao(), FirebaseFirestore.getInstance())
-
         binding.btnBack.setOnClickListener { finish() }
         binding.playerView.setShowSubtitleButton(false)
         binding.playerView.subtitleView?.visibility = View.GONE
-
         setupDrawerAndMenu()
+
+        // ✅ Initialize Report Button Click Logic
+        setupReportButton()
 
         binding.playerView.setOnClickListener {
             if (isTouchDevice && previewPosition != -1 && channelList.isNotEmpty()) {
                 openFullscreen(channelList[previewPosition], previewPosition)
             }
         }
-
         setupRecycler()
         setupSearch()
-
         // Room Flow observation (Safe on Main Thread)
         lifecycleScope.launch {
             db.favoritesDao().observeByType("LIVE_CHANNEL").collect { favs ->
@@ -130,8 +138,48 @@ class FavouriteChannelsActivity : BaseActivity() {
                 refreshFavouriteListFromDb(favIds)
             }
         }
-
         ensureInitialSyncThenLoadFavourites()
+    }
+
+    // ✅ NEW: Report Button Logic matching the working ChatHub format
+    private fun setupReportButton() {
+        binding.btnReportChannel.visibility = View.GONE
+        binding.btnReportChannel.setOnClickListener {
+            if (previewPosition == -1 || channelList.isEmpty()) return@setOnClickListener
+
+            val currentChannel = channelList[previewPosition]
+            val channelName = currentChannel.name ?: "Unknown Channel"
+            val username = prefs.getUsername()
+
+            val alertMessage = "🚨 System Alert: $username reported that the channel '$channelName' is currently down."
+
+            val chatData = hashMapOf(
+                "senderId" to "system_bot",
+                "senderName" to "System",
+                "text" to alertMessage,
+                "ts" to com.google.firebase.firestore.FieldValue.serverTimestamp()
+            )
+
+            val firestore = FirebaseFirestore.getInstance()
+
+            // Hide immediately to prevent spam clicks
+            binding.btnReportChannel.visibility = View.GONE
+            binding.txtPlayerError.text = "Sending report..."
+
+            firestore.collection("rooms")
+                .document("general")
+                .collection("messages")
+                .add(chatData)
+                .addOnSuccessListener {
+                    binding.txtPlayerError.text = "Channel reported. Our team will look into it."
+                    Toast.makeText(this, "Report sent to General Chat!", Toast.LENGTH_SHORT).show()
+                }
+                .addOnFailureListener { exception ->
+                    binding.btnReportChannel.visibility = View.VISIBLE
+                    binding.txtPlayerError.text = "Failed to send report."
+                    Toast.makeText(this, "Error: ${exception.message}", Toast.LENGTH_LONG).show()
+                }
+        }
     }
 
     private fun ensureInitialSyncThenLoadFavourites() {
@@ -144,7 +192,6 @@ class FavouriteChannelsActivity : BaseActivity() {
                     categoryId = "",
                     forceRefresh = false
                 )
-
                 if (allDbChannels.isNotEmpty()) {
                     allChannels.clear()
                     allChannels.addAll(allDbChannels)
@@ -168,7 +215,6 @@ class FavouriteChannelsActivity : BaseActivity() {
                     categoryId = "",
                     forceRefresh = forceRefresh
                 )
-
                 allChannels.clear()
                 allChannels.addAll(allChannelsFromRepo)
                 refreshFavouriteListFromDb(currentFavIds)
@@ -184,17 +230,13 @@ class FavouriteChannelsActivity : BaseActivity() {
             adapter.updateFavourites(favIds)
             return
         }
-
         val favChannels = allChannels.filter { channel ->
             favIds.contains(channel.stream_id?.toString().orEmpty())
         }
-
         channelList.clear()
         channelList.addAll(favChannels)
-
         adapter.updateData(channelList)
         adapter.updateFavourites(favIds)
-
         if (channelList.isEmpty()) {
             previewPosition = -1
             binding.txtOverlayChannel.text = ""
@@ -204,10 +246,10 @@ class FavouriteChannelsActivity : BaseActivity() {
             binding.txtNextTitle.text = ""
             binding.txtNextTime.text = ""
             binding.txtPlayerError.visibility = View.GONE
+            binding.btnReportChannel.visibility = View.GONE // Ensure button hides when empty
             PlayerManager.pause()
             return
         }
-
         if (previewPosition !in channelList.indices) previewPosition = 0
         adapter.setPlaying(previewPosition)
         showPreview(channelList[previewPosition])
@@ -219,9 +261,7 @@ class FavouriteChannelsActivity : BaseActivity() {
     private fun forceRefreshData(isInitialSync: Boolean = false) {
         if (isRefreshing) return
         isRefreshing = true
-
         val msg = if (isInitialSync) "Downloading Channels for the first time…" else "Refreshing channels & categories…"
-
         runCallbackSyncWithLoader(
             loadingMessage = msg,
             successMessage = "Channels Refreshed Successfully!"
@@ -248,7 +288,6 @@ class FavouriteChannelsActivity : BaseActivity() {
 
     private fun setupDrawerAndMenu() {
         binding.btnMore.setOnClickListener { openRightDrawer(binding.drawerLayout) }
-
         setupOptionalRightDrawerMenu(binding.drawerLayout, binding.rightNav) { itemId ->
             when (itemId) {
                 R.id.action_home -> {
@@ -269,7 +308,6 @@ class FavouriteChannelsActivity : BaseActivity() {
                         try {
                             DatabaseProvider.get(this@FavouriteChannelsActivity).favoritesDao().clearAll()
                         } catch (_: Exception) {}
-
                         prefs.clear()
                         startActivity(Intent(this@FavouriteChannelsActivity, LoginActivity::class.java))
                         finishAffinity()
@@ -279,7 +317,6 @@ class FavouriteChannelsActivity : BaseActivity() {
                 else -> false
             }
         }
-
         binding.drawerLayout.addDrawerListener(object : DrawerLayout.SimpleDrawerListener() {
             override fun onDrawerOpened(drawerView: View) {
                 if (drawerView.id == binding.rightNav.id) {
@@ -303,7 +340,6 @@ class FavouriteChannelsActivity : BaseActivity() {
     private fun removeFromFavourites(channel: LiveChannel) {
         val streamId = channel.stream_id?.toString() ?: return
         val userId = prefs.getUsername()
-
         lifecycleScope.launch {
             favRepo.removeFavorite(userId, "LIVE_CHANNEL", streamId)
             Toast.makeText(this@FavouriteChannelsActivity, "${channel.name} removed from Favourites", Toast.LENGTH_SHORT).show()
@@ -314,10 +350,10 @@ class FavouriteChannelsActivity : BaseActivity() {
         retryJob?.cancel()
         retryCount = 0
         binding.txtPlayerError.visibility = View.GONE
+        binding.btnReportChannel.visibility = View.GONE // ✅ Hide button when new channel loads
 
         val streamUrl = buildStreamUrl(channel)
         PlayerManager.play(this, binding.playerView, streamUrl)
-
         binding.txtOverlayChannel.text = channel.name ?: ""
         binding.txtOverlayProgram.text = "Loading TV Guide..."
         binding.txtNowTitle.text = "Loading TV Guide..."
@@ -331,7 +367,6 @@ class FavouriteChannelsActivity : BaseActivity() {
         PlayerState.channels.clear()
         PlayerState.channels.addAll(channelList)
         PlayerState.currentPosition = position
-
         val streamUrl = buildStreamUrl(channel)
         PlayerManager.play(this, binding.playerView, streamUrl)
         startActivity(Intent(this, PlayerActivity::class.java))
@@ -339,43 +374,49 @@ class FavouriteChannelsActivity : BaseActivity() {
 
     private fun buildStreamUrl(channel: LiveChannel): String {
         val server = prefs.getServer().trim().trimEnd('/')
-        return "$server/live/${prefs.getUsername()}/${prefs.getPassword()}/${channel.stream_id}.m3u8"
+        val username = prefs.getUsername()
+        val password = prefs.getPassword()
+        return "$server/live/$username/$password/${channel.stream_id}.m3u8"
     }
 
     private fun loadProgramGuide(channel: LiveChannel) {
-        val streamId = channel.stream_id ?: return
-
+        val epgId = channel.epg_channel_id ?: channel.stream_id?.toString() ?: return
         lifecycleScope.launch {
             try {
-                val epg = repository.getShortEPG(
-                    prefs.getServer(),
-                    prefs.getUsername(),
-                    prefs.getPassword(),
-                    streamId
-                )
-
-                val list = epg.epg_listings
-                if (list.isNullOrEmpty()) {
+                val (nowEpg, nextEpg) = repository.getNowNextEpg(epgId)
+                if (nowEpg != null) {
+                    binding.txtNowTitle.text = nowEpg.title ?: "No Program Info"
+                    binding.txtNowTime.text = "${formatTime(nowEpg.startTimestamp)} - ${formatTime(nowEpg.stopTimestamp)}"
+                    binding.txtOverlayProgram.text = nowEpg.title ?: ""
+                } else {
                     binding.txtNowTitle.text = "No EPG"
+                    binding.txtNowTime.text = ""
                     binding.txtOverlayProgram.text = ""
-                    return@launch
                 }
-                val now = list[0]
-                binding.txtNowTitle.text = decodeBase64(now.title)
-                binding.txtOverlayProgram.text = binding.txtNowTitle.text
-
-            } catch (_: Exception) {
+                if (nextEpg != null) {
+                    binding.txtNextTitle.text = nextEpg.title ?: ""
+                    binding.txtNextTime.text = "${formatTime(nextEpg.startTimestamp)} - ${formatTime(nextEpg.stopTimestamp)}"
+                } else {
+                    binding.txtNextTitle.text = ""
+                    binding.txtNextTime.text = ""
+                }
+            } catch (e: Exception) {
                 binding.txtNowTitle.text = "EPG unavailable"
+                binding.txtNowTime.text = ""
+                binding.txtNextTitle.text = ""
+                binding.txtNextTime.text = ""
+                binding.txtOverlayProgram.text = ""
             }
         }
     }
 
-    private fun decodeBase64(value: String?): String {
-        if (value.isNullOrBlank()) return ""
+    private fun formatTime(timeMs: Long?): String {
+        if (timeMs == null || timeMs == 0L) return ""
         return try {
-            String(Base64.decode(value, Base64.DEFAULT))
+            val output = SimpleDateFormat("hh:mm a", Locale.getDefault())
+            output.format(timeMs)
         } catch (e: Exception) {
-            value
+            ""
         }
     }
 
@@ -411,17 +452,14 @@ class FavouriteChannelsActivity : BaseActivity() {
                 val filtered = allChannels.filter {
                     it.name?.contains(keyword, ignoreCase = true) ?: false
                 }
-
                 val favIds = currentFavIds
                 val favFiltered = filtered.filter {
                     favIds.contains(it.stream_id?.toString().orEmpty())
                 }
-
                 channelList.clear()
                 channelList.addAll(favFiltered)
                 adapter.updateData(channelList)
                 adapter.updateFavourites(favIds)
-
                 if (previewPosition !in channelList.indices) {
                     adapter.setPlaying(-1)
                 } else {
@@ -462,6 +500,22 @@ class FavouriteChannelsActivity : BaseActivity() {
         PlayerManager.resume()
         binding.playerView.player?.addListener(playerListener)
 
+        val player = binding.playerView.player
+        if (player?.playbackState == Player.STATE_READY) {
+            binding.progressLoading.visibility = View.GONE
+            binding.txtPlayerError.visibility = View.GONE
+            binding.btnReportChannel.visibility = View.GONE
+        } else if (player?.playbackState == Player.STATE_BUFFERING) {
+            binding.progressLoading.visibility = View.VISIBLE
+            binding.txtPlayerError.visibility = View.GONE
+        } else if (player?.playerError != null) {
+            binding.progressLoading.visibility = View.GONE
+            binding.txtPlayerError.visibility = View.VISIBLE
+
+            // Show report button if error state is persisted
+            binding.btnReportChannel.visibility = View.VISIBLE
+        }
+
         registerEpgRefresh {
             if (previewPosition in channelList.indices) {
                 loadProgramGuide(channelList[previewPosition])
@@ -474,7 +528,6 @@ class FavouriteChannelsActivity : BaseActivity() {
         binding.playerView.player?.removeListener(playerListener)
         if (!isGoingToFullscreen) PlayerManager.pause()
         PlayerManager.detach(binding.playerView)
-
         unregisterEpgRefresh()
     }
 
