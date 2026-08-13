@@ -90,6 +90,8 @@ class PlayerActivity : BaseActivity() {
                 retryCount++
                 val toastMsg = "Reconnecting... ($retryCount/$MAX_RETRIES)"
                 Toast.makeText(this@PlayerActivity, toastMsg, Toast.LENGTH_SHORT).show()
+                binding.txtPlayerError.text = toastMsg
+                binding.txtPlayerError.visibility = View.VISIBLE
 
                 retryJob?.cancel()
                 retryJob = lifecycleScope.launch(Dispatchers.Main) {
@@ -98,9 +100,8 @@ class PlayerActivity : BaseActivity() {
                     if (currentChannel != null) {
                         val streamUrl = buildStreamUrl(currentChannel)
                         binding.progressBar.visibility = View.VISIBLE
-                        binding.txtPlayerError.visibility = View.GONE
                         binding.btnReportChannel.visibility = View.GONE
-                        PlayerManager.play(this@PlayerActivity, binding.playerView, streamUrl)
+                        PlayerManager.retry(this@PlayerActivity, binding.playerView, streamUrl)
                     }
                 }
             } else {
