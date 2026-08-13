@@ -47,7 +47,7 @@ class ChannelListActivity : BaseActivity() {
     private var isGoingToFullscreen = false
     private var loadingDialog: AlertDialog? = null
     private var retryCount = 0
-    private val MAX_RETRIES = 1
+    private val MAX_RETRIES = 3
     private var retryJob: Job? = null
     private val isTouchDevice by lazy {
         !packageManager.hasSystemFeature(PackageManager.FEATURE_LEANBACK)
@@ -79,6 +79,9 @@ class ChannelListActivity : BaseActivity() {
                     "Playback Error. Trying to reconnect in 3 sec. ($retryCount)",
                     Toast.LENGTH_SHORT
                 ).show()
+                binding.txtPlayerError.text = "Retrying... ($retryCount/$MAX_RETRIES)"
+                binding.txtPlayerError.visibility = View.VISIBLE
+                binding.txtNowTitle.text = "Reconnecting stream..."
                 retryJob?.cancel()
                 retryJob = lifecycleScope.launch {
                     delay(3000)
@@ -86,7 +89,7 @@ class ChannelListActivity : BaseActivity() {
                         val currentChannel = channelList[previewPosition]
                         val streamUrl = buildStreamUrl(currentChannel)
                         binding.progressLoading.visibility = View.VISIBLE
-                        PlayerManager.play(this@ChannelListActivity, binding.playerView, streamUrl)
+                        PlayerManager.retry(this@ChannelListActivity, binding.playerView, streamUrl)
                     }
                 }
             } else {

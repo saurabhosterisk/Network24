@@ -125,6 +125,27 @@ object PlayerManager {
         player.play()
     }
 
+    /**
+     * Recreates the current media item after a playback failure.
+     *
+     * Calling [play] with the same URL is not sufficient for every ExoPlayer error
+     * state: the failed media source can remain attached and immediately surface the
+     * previous error again. A retry must stop and prepare a fresh media item.
+     */
+    fun retry(
+        context: Context,
+        playerView: PlayerView,
+        streamUrl: String
+    ) {
+        val player = getPlayer(context)
+        attach(context, playerView)
+        currentUrl = streamUrl
+        player.stop()
+        player.setMediaItem(MediaItem.fromUri(streamUrl))
+        player.prepare()
+        player.play()
+    }
+
     fun pause() {
         exoPlayer?.pause()
     }

@@ -80,6 +80,9 @@ class FavouriteChannelsActivity : BaseActivity() {
                     "Playback Error. Trying to reconnect in 3 sec. ($retryCount)",
                     Toast.LENGTH_SHORT
                 ).show()
+                binding.txtPlayerError.text = "Retrying... ($retryCount/$MAX_RETRIES)"
+                binding.txtPlayerError.visibility = View.VISIBLE
+                binding.txtNowTitle.text = "Reconnecting stream..."
                 retryJob?.cancel()
                 retryJob = lifecycleScope.launch {
                     delay(3000)
@@ -87,7 +90,7 @@ class FavouriteChannelsActivity : BaseActivity() {
                         val currentChannel = channelList[previewPosition]
                         val streamUrl = buildStreamUrl(currentChannel)
                         binding.progressLoading.visibility = View.VISIBLE
-                        PlayerManager.play(this@FavouriteChannelsActivity, binding.playerView, streamUrl)
+                        PlayerManager.retry(this@FavouriteChannelsActivity, binding.playerView, streamUrl)
                     }
                 }
             } else {
